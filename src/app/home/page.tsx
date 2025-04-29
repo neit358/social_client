@@ -40,7 +40,7 @@ export default function Page() {
     return (
         <>
             <Header />
-            <div className="w-full flex items-center justify-center">
+            <div className="w-full flex items-center justify-center mt-20">
                 <div className="w-[500px] flex flex-col gap-4">
                     <Register_post />
                     {posts.map((post) => (

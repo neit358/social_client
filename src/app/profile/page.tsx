@@ -11,6 +11,7 @@ import { Button, Card, CardContent, TextField } from '@mui/material';
 
 import { RootState } from '@/store';
 import { userService } from '@/services/user.services';
+import Header from '@/components/Header';
 
 interface FormDataUser {
     name: string;
@@ -63,62 +64,65 @@ export default function User() {
         }
     }
     return (
-        <div className="flex flex-col items-center justify-center h-screen">
-            <Card sx={{ minWidth: 300 }}>
-                <CardContent>
-                    <form
-                        className="flex flex-col items-center justify-center h-full gap-y-4 bg"
-                        onSubmit={handleSubmit(onSubmit)}
-                    >
-                        <h1 className="text-2xl font-bold">Profile</h1>
-                        <div
-                            className="flex flex-col items-center relative group"
-                            onClick={hanldeClickChangeAvatar}
+        <>
+            <Header />
+            <div className="flex flex-col items-center justify-center h-screen">
+                <Card sx={{ minWidth: 300 }}>
+                    <CardContent>
+                        <form
+                            className="flex flex-col items-center justify-center h-full gap-y-4 bg"
+                            onSubmit={handleSubmit(onSubmit)}
                         >
-                            <Image
-                                src={priview}
-                                alt="User avatar"
-                                width={100}
-                                height={100}
-                                priority
-                                className="w-20 h-20 rounded-full overflow-hidden"
-                            />
-                            {isEdit && (
-                                <EditIcon
-                                    className="absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-80 transition-opacity duration-300"
-                                    color="warning"
+                            <h1 className="text-2xl font-bold">Profile</h1>
+                            <div
+                                className="flex flex-col items-center relative group"
+                                onClick={hanldeClickChangeAvatar}
+                            >
+                                <Image
+                                    src={priview}
+                                    alt="User avatar"
+                                    width={100}
+                                    height={100}
+                                    priority
+                                    className="w-20 h-20 rounded-full overflow-hidden"
                                 />
-                            )}
-                            <input
-                                type="file"
-                                hidden
-                                accept="image/jpeg, image/png, image/webp"
-                                ref={inputFileRef}
-                                onChange={handleChangeImage}
-                            />
-                        </div>
-                        <div className="flex flex-col">
-                            <TextField
-                                label="Name"
-                                disabled={!isEdit}
-                                {...register('name')}
-                            ></TextField>
-                            {errors.name && errors.name.message}
-                        </div>
-                        <Button
-                            ref={refButton}
-                            type={isEdit ? 'submit' : 'button'}
-                            variant={isEdit ? 'contained' : 'outlined'}
-                            loading={isLoading}
-                            onClick={() => {
-                                if (!isEdit) setIsEdit(!isEdit);
-                            }}
-                        >
-                            {isEdit ? 'Update' : 'Edit'}
-                        </Button>
-                    </form>
-                </CardContent>
-            </Card>
-        </div>
+                                {isEdit && (
+                                    <EditIcon
+                                        className="absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-80 transition-opacity duration-300"
+                                        color="warning"
+                                    />
+                                )}
+                                <input
+                                    type="file"
+                                    hidden
+                                    accept="image/jpeg, image/png, image/webp"
+                                    ref={inputFileRef}
+                                    onChange={handleChangeImage}
+                                />
+                            </div>
+                            <div className="flex flex-col">
+                                <TextField
+                                    label="Name"
+                                    disabled={!isEdit}
+                                    {...register('name')}
+                                ></TextField>
+                                {errors.name && errors.name.message}
+                            </div>
+                            <Button
+                                ref={refButton}
+                                type={isEdit ? 'submit' : 'button'}
+                                variant={isEdit ? 'contained' : 'outlined'}
+                                loading={isLoading}
+                                onClick={() => {
+                                    if (!isEdit) setIsEdit(!isEdit);
+                                }}
+                            >
+                                {isEdit ? 'Update' : 'Edit'}
+                            </Button>
+                        </form>
+                    </CardContent>
+                </Card>
+            </div>
+        </>
     );
 }
