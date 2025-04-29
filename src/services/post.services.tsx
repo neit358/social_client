@@ -3,6 +3,15 @@ import axiosInstance from '@/lib/axiosInstance';
 const root = 'post';
 
 export const postService = {
+    getPosts: async () => {
+        try {
+            const response = await axiosInstance.get(`/${root}`);
+            return response.data;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    },
+
     createPost: async (title: string, content: string, userId: string, image: File) => {
         try {
             const formData = new FormData();

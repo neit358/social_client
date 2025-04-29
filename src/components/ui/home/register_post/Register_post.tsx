@@ -75,7 +75,7 @@ export default function Register_post() {
     };
 
     return (
-        <Card>
+        <Card variant="outlined">
             <CardContent className="flex gap-3 items-center">
                 <div>
                     <Image src="/path/to/avatar.jpg" alt="avatar" width={50} height={50} />

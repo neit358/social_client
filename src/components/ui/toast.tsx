@@ -4,13 +4,13 @@ import { useState } from 'react';
 
 export default function Toast({
     message,
-    vertical,
-    horizontal,
+    vertical = 'bottom',
+    horizontal = 'right',
     turnOn,
 }: {
     message: string;
-    vertical: 'top' | 'bottom';
-    horizontal: 'left' | 'right';
+    vertical?: 'top' | 'bottom';
+    horizontal?: 'left' | 'right';
     turnOn: boolean;
 }) {
     const [open, setOpen] = useState(turnOn);
