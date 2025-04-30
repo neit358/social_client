@@ -1,5 +1,5 @@
 'use client';
-import { Button, Card, CardContent, Modal, TextField } from '@mui/material';
+import { Box, Button, Card, CardContent, Modal, TextField, Typography } from '@mui/material';
 import Image from 'next/image';
 import React, { useRef, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
@@ -75,59 +75,68 @@ export default function Register_post() {
     };
 
     return (
-        <Card variant="outlined">
+        <Card variant="outlined" className="rounded-r-2xl">
             <CardContent className="flex gap-3 items-center">
-                <div>
-                    <Image src="/path/to/avatar.jpg" alt="avatar" width={50} height={50} />
-                </div>
+                <Box>
+                    <Image src="/next.svg" alt="avatar" width={50} height={50} />
+                </Box>
 
-                <div className="flex-1 group">
+                <Box className="flex-1 group">
                     <TextField
                         type="text"
                         placeholder="What's on your mind?"
-                        className="w-full p-2 border border-gray-300 group-hover:bg-gray-100"
+                        fullWidth
+                        InputProps={{ readOnly: true }}
                         onClick={() => setOpen(true)}
+                        className="group-hover:bg-gray-100"
                     />
+
                     <Modal open={open} onClose={() => setOpen(false)}>
-                        <Card className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px]">
+                        <Card
+                            className="absolute top-1/2 left-1/2 w-[500px] p-4"
+                            sx={{ transform: 'translate(-50%, -50%)' }}
+                        >
                             <CardContent>
                                 <form
-                                    className="flex flex-col gap-3"
+                                    className="flex flex-col gap-4"
                                     onSubmit={handleSubmit(onsubmit)}
                                 >
-                                    <div className="flex items-center gap-3">
+                                    <Box className="flex items-center gap-3">
                                         <Image
                                             src="/path/to/avatar.jpg"
                                             alt="avatar"
                                             width={50}
                                             height={50}
                                         />
-                                        <span className="font-bold">User Name</span>
-                                    </div>
-                                    <div className='flex flex-col gap-1">'>
+                                        <Typography fontWeight="bold">User Name</Typography>
+                                    </Box>
+
+                                    <Box className="flex flex-col gap-1">
                                         <TextField
                                             label="Title"
-                                            type="text"
                                             variant="filled"
                                             {...register('title')}
+                                            error={!!errors.title}
+                                            helperText={errors.title?.message}
                                         />
-                                        {errors.title && <p> {errors.title.message} </p>}
-                                    </div>
-                                    <div className="flex flex-col gap-1">
+                                    </Box>
+
+                                    <Box className="flex flex-col gap-1">
                                         <TextField
                                             label="Content"
-                                            type="text"
                                             variant="filled"
                                             multiline
                                             minRows={4}
                                             maxRows={4}
                                             fullWidth
                                             {...register('content')}
+                                            error={!!errors.content}
+                                            helperText={errors.content?.message}
                                         />
-                                        {errors.title && <p> {errors.title.message} </p>}
-                                    </div>
-                                    <div
-                                        className="relative flex justify-center items-center w-full h-20 bg-gray-200 hover:bg-gray-300"
+                                    </Box>
+
+                                    <Box
+                                        className="relative flex justify-center items-center w-full h-40 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded"
                                         onClick={() => refInput.current?.click()}
                                     >
                                         {preview ? (
@@ -135,10 +144,10 @@ export default function Register_post() {
                                                 src={preview}
                                                 alt="preview"
                                                 fill
-                                                style={{ objectFit: 'cover' }}
+                                                style={{ objectFit: 'cover', borderRadius: '4px' }}
                                             />
                                         ) : (
-                                            <AddIcon />
+                                            <AddIcon fontSize="large" />
                                         )}
                                         <input
                                             type="file"
@@ -147,7 +156,8 @@ export default function Register_post() {
                                             ref={refInput}
                                             accept="image/jpeg, image/png, image/webp"
                                         />
-                                    </div>
+                                    </Box>
+
                                     <Button
                                         type="submit"
                                         variant="contained"
@@ -159,7 +169,7 @@ export default function Register_post() {
                             </CardContent>
                         </Card>
                     </Modal>
-                </div>
+                </Box>
             </CardContent>
             {turnOn && (
                 <Toast

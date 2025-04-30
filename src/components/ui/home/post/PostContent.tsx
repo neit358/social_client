@@ -1,3 +1,5 @@
+import { Box } from '@mui/material';
+
 export default function PostContent({ content }: { content: string }) {
-    return <div className="p-5">{content}</div>;
+    return <Box className="py-3 px-2">{content}</Box>;
 }

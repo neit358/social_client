@@ -7,11 +7,13 @@ import Button from './Button';
 import { useEffect, useState } from 'react';
 
 import { likeService } from '@/services/like.services';
+import { I_Post } from '@/types/post';
 
-export default function PostActions({ postId }: { postId: string }) {
+export default function PostActions({ postId }: Partial<I_Post>) {
     const [likes, setLikes] = useState([]);
     useEffect(() => {
         const fetchLikes = async () => {
+            if (!postId) return;
             try {
                 const response = await likeService.getLikes(postId);
                 setLikes(response.data);
@@ -21,10 +23,10 @@ export default function PostActions({ postId }: { postId: string }) {
         };
 
         fetchLikes();
-    }, []);
+    }, [postId]);
 
     return (
-        <div className="flex justify-between border-t-1 rounded-bl-2xl rounded-br-2xl px-5 py-2">
+        <div className="flex justify-around mt-3 pt-4 pb-2 border-t border-gray-300 rounded-b-2xl bg-white">
             <Button icon={<ThumbUpIcon />} quality={likes.length} />
             <Button icon={<ModeCommentIcon />} />
             <Button icon={<ReplyIcon />} />
