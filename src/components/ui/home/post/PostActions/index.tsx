@@ -9,8 +9,9 @@ import { useEffect, useState } from 'react';
 import { likeService } from '@/services/like.services';
 import { I_Post } from '@/types/post';
 
-export default function PostActions({ postId }: Partial<I_Post>) {
+export default function PostActions({ id: postId }: Partial<I_Post>) {
     const [likes, setLikes] = useState([]);
+    const [action, setAction] = useState(false);
     useEffect(() => {
         const fetchLikes = async () => {
             if (!postId) return;
@@ -23,13 +24,20 @@ export default function PostActions({ postId }: Partial<I_Post>) {
         };
 
         fetchLikes();
-    }, [postId]);
+    }, [postId, action]);
 
     return (
         <div className="flex justify-around mt-3 pt-4 pb-2 border-t border-gray-300 rounded-b-2xl bg-white">
-            <Button icon={<ThumbUpIcon />} quality={likes.length} />
-            <Button icon={<ModeCommentIcon />} />
-            <Button icon={<ReplyIcon />} />
+            <Button
+                icon={<ThumbUpIcon />}
+                quality={likes.length}
+                type={'like'}
+                postId={postId}
+                setAction={setAction}
+                action={action}
+            />
+            <Button icon={<ModeCommentIcon />} type={'comment'} />
+            <Button icon={<ReplyIcon />} type={'share'} />
         </div>
     );
 }

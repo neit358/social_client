@@ -14,7 +14,7 @@ export default function Post({ id, title, content, image, userId }: I_Post) {
                 <PostTitile title={title}></PostTitile>
                 <PostContent content={content}></PostContent>
                 <PostImage image={image}></PostImage>
-                <PostActions postId={id}></PostActions>
+                <PostActions id={id}></PostActions>
             </CardContent>
         </Card>
     );

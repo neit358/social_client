@@ -3,6 +3,15 @@ import axiosInstance from '@/lib/axiosInstance';
 const root = 'post';
 
 export const postService = {
+    getPostsByUserId: async (userId: string) => {
+        try {
+            const response = await axiosInstance.get(`/${root}/user/${userId}`);
+            return response.data;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    },
+
     getPosts: async () => {
         try {
             const response = await axiosInstance.get(`/${root}`);
