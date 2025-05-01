@@ -29,7 +29,7 @@ export default function PostInformation({ userId }: Partial<I_Post>) {
         <Box className="flex justify-between rounded-tl-2xl rounded-rl-2xl py-3 px-2 items-center border-b-1 border-gray-300">
             <div className="flex gap-4 items-center">
                 <Image
-                    src={artist?.image || ''}
+                    src={artist?.image || './next.svg'}
                     alt="avatar"
                     width={40}
                     height={40}

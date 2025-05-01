@@ -3,11 +3,11 @@
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ModeCommentIcon from '@mui/icons-material/ModeComment';
 import ReplyIcon from '@mui/icons-material/Reply';
-import Button from './Button';
 import { useEffect, useState } from 'react';
 
 import { likeService } from '@/services/like.services';
 import { I_Post } from '@/types/post';
+import ButtonPost from './Button';
 
 export default function PostActions({ id: postId }: Partial<I_Post>) {
     const [likes, setLikes] = useState([]);
@@ -28,7 +28,7 @@ export default function PostActions({ id: postId }: Partial<I_Post>) {
 
     return (
         <div className="flex justify-around mt-3 pt-4 pb-2 border-t border-gray-300 rounded-b-2xl bg-white">
-            <Button
+            <ButtonPost
                 icon={<ThumbUpIcon />}
                 quality={likes.length}
                 type={'like'}
@@ -36,8 +36,8 @@ export default function PostActions({ id: postId }: Partial<I_Post>) {
                 setAction={setAction}
                 action={action}
             />
-            <Button icon={<ModeCommentIcon />} type={'comment'} />
-            <Button icon={<ReplyIcon />} type={'share'} />
+            <ButtonPost icon={<ModeCommentIcon />} type={'comment'} />
+            <ButtonPost icon={<ReplyIcon />} type={'share'} />
         </div>
     );
 }

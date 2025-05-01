@@ -1,10 +1,11 @@
-import { likeService } from '@/services/like.services';
-import { RootState } from '@/store';
 import { JSX } from '@emotion/react/jsx-runtime';
 import { useEffect, useState } from 'react';
+import { likeService } from '@/services/like.services';
+
+import { RootState } from '@/store';
 import { useSelector } from 'react-redux';
 
-export default function Button({
+export default function ButtonPost({
     icon,
     quality,
     type,
@@ -20,8 +21,8 @@ export default function Button({
     action?: boolean;
 }) {
     const [isLike, setIsLike] = useState(false);
-
     const user = useSelector((state: RootState) => state.auth);
+
     const handleClickButtonAction = () => {
         switch (type) {
             case 'like':

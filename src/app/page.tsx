@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from 'react';
 
-import Register_post from '@/components/ui/home/register_post/Register_post';
 import { postService } from '@/services/post.services';
 import Toast from '@/components/ui/toast';
 import { I_Post } from '@/types/post';
 import Header from '@/components/Header';
-import Post from '@/components/ui/home/post/Post';
+import Post from '@/components/ui/post/Post';
 import { Box } from '@mui/material';
+import Register_post from '@/components/ui/register_post/register_post';
 
 export default function Home() {
     const [message, setMessage] = useState('');
@@ -53,6 +53,7 @@ export default function Home() {
                             content={post.content}
                             title={post.title}
                             image={post.image}
+                            type="post"
                         />
                     ))}
                 </div>
