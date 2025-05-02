@@ -22,22 +22,20 @@ export default function ModalRegisterPost({
     setOpen,
     open,
     postId,
-    title,
-    content,
-    image,
     type = 'post',
+    reload,
+    setReload,
 }: {
-    setMessage: React.Dispatch<React.SetStateAction<string | null>>;
+    setMessage: React.Dispatch<React.SetStateAction<string>>;
     setTurnOn: React.Dispatch<React.SetStateAction<boolean>>;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
     open: boolean;
     postId?: string;
-    title?: string;
-    content?: string;
-    image?: string;
     type?: string;
+    reload?: boolean;
+    setReload?: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-    const [preview, setPreview] = useState<string | null>(image || null);
+    const [preview, setPreview] = useState<string | null>(null);
     const [file, setFile] = useState<File | null>(null);
     const user = useSelector((state: RootState) => state.auth);
     const refInput = useRef<HTMLInputElement>(null);
@@ -66,33 +64,47 @@ export default function ModalRegisterPost({
                 type === 'edit' && postId
                     ? await postService.updatePost(postId, data.title, data.content, file as File)
                     : await postService.createPost(data.title, data.content, user.id, file as File);
-            setOpen(false);
-            setPreview(null);
+            if (type !== 'edit' && !postId) setPreview(null);
             setFile(null);
+            setOpen(false);
             setMessage(response.message);
             setTurnOn(true);
+            if (setReload) {
+                setReload(!reload);
+            }
             setTimeout(() => {
                 setTurnOn(false);
-                setMessage(null);
+                setMessage('');
             }, 3000);
         } catch {
-            setMessage('Error creating post');
+            setMessage('Error post api!');
             setOpen(false);
             setTurnOn(true);
             setTimeout(() => {
                 setTurnOn(false);
-                setMessage(null);
+                setMessage('');
             }, 3000);
         }
     };
 
     useEffect(() => {
-        setPreview(image || null);
-        reset({
-            title: title || '',
-            content: content || '',
-        });
-    }, [title, content, image, reset]);
+        const fetchApi = async () => {
+            try {
+                if (type === 'edit' && postId) {
+                    const response = await postService.getPostById(postId);
+                    setPreview(response.data.image);
+                    reset({
+                        title: response.data.title,
+                        content: response.data.content,
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchApi();
+    }, [postId, reset, type]);
 
     return (
         <Modal open={open} onClose={() => setOpen(false)}>
@@ -104,7 +116,7 @@ export default function ModalRegisterPost({
                     <form className="flex flex-col gap-4" onSubmit={handleSubmit(onsubmit)}>
                         <Box className="flex items-center gap-3">
                             <Image
-                                src={user.image || '/next.svg'}
+                                src={user.avatar || '/next.svg'}
                                 alt="avatar"
                                 width={50}
                                 height={50}
@@ -142,10 +154,11 @@ export default function ModalRegisterPost({
                         >
                             {preview ? (
                                 <Image
+                                    width={100}
+                                    height={100}
                                     src={preview}
                                     alt="preview"
-                                    fill
-                                    style={{ objectFit: 'cover', borderRadius: '4px' }}
+                                    className="w-full h-full"
                                 />
                             ) : (
                                 <AddIcon fontSize="large" />

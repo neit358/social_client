@@ -3,22 +3,20 @@ import { createSlice } from '@reduxjs/toolkit';
 const authSlice = createSlice({
     name: 'auth',
     initialState: {
-        auth: {
-            id: '',
-            name: '',
-            image: '',
-        },
+        id: '',
+        name: '',
+        avatar: '',
     },
     reducers: {
         setUser: (state, action) => {
-            state.auth.id = action.payload.id;
-            state.auth.name = action.payload.name;
-            state.auth.image = action.payload.image;
+            state.id = action.payload.id;
+            state.name = action.payload.name;
+            state.avatar = action.payload.avatar;
         },
         clearUser: (state) => {
-            state.auth.id = '';
-            state.auth.name = '';
-            state.auth.image = '';
+            state.id = '';
+            state.name = '';
+            state.avatar = '';
         },
     },
 });

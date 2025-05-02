@@ -30,6 +30,15 @@ export const postService = {
         }
     },
 
+    getPostsSearch: async (search: string) => {
+        try {
+            const response = await axiosInstance.get(`/${root}/search/${search}`);
+            return response.data;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    },
+
     createPost: async (title: string, content: string, userId: string, image: File) => {
         try {
             const formData = new FormData();
@@ -58,6 +67,16 @@ export const postService = {
         }
     },
 
+    deletePosts: async (listPostId: string[]) => {
+        try {
+            const response = await axiosInstance.post(`/${root}/delete/list`, {
+                listPostId,
+            });
+            return response.data;
+        } catch {
+            return Promise.reject('Error delete posts');
+        }
+    },
     updatePost: async (postId: string, title: string, content: string, image: File) => {
         try {
             const formData = new FormData();

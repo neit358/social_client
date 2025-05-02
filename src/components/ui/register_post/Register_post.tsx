@@ -4,13 +4,12 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 
 import Toast from '../toast';
-import ModalRegisterPost from './modal_register_post/modal_register_post';
-import { FormData } from '@/types/formData';
+import ModalRegisterPost from './modal_register_post/Modal_register_post';
 
-export default function Register_post({ title, content }: Partial<FormData>) {
+export default function Register_post() {
     const [open, setOpen] = useState(false);
     const [turnOn, setTurnOn] = useState(false);
-    const [message, setMessage] = useState<string | null>(null);
+    const [message, setMessage] = useState<string>('');
 
     return (
         <Card variant="outlined" className="rounded-r-2xl">
@@ -35,8 +34,6 @@ export default function Register_post({ title, content }: Partial<FormData>) {
                 setMessage={setMessage}
                 setOpen={setOpen}
                 open={open}
-                title={title}
-                content={content}
             />
             {turnOn && (
                 <Toast

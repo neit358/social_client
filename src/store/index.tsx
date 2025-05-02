@@ -1,15 +1,24 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
 import authReducer from './authSlice';
+import sidebarReducer from './sidebarSlice';
+import headerReducer from './headerSlice';
 
 const persitConfig = {
     key: 'root',
     storage,
+    blacklist: ['sidebar', 'header'],
 };
 
-const persistedReducer = persistReducer(persitConfig, authReducer);
+const rootReducer = combineReducers({
+    auth: authReducer,
+    sidebar: sidebarReducer,
+    header: headerReducer,
+});
+
+const persistedReducer = persistReducer(persitConfig, rootReducer);
 
 export const store = configureStore({
     reducer: persistedReducer,

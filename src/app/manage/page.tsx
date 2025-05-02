@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 
 import { RootState } from '@/store';
 import Header from '@/components/Header';
-import Manage from '@/components/ui/manage/manage';
+import Manage from '@/components/ui/manage/Manage';
 
 export default function Page() {
     const user = useSelector((state: RootState) => state.auth);
