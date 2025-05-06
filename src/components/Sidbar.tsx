@@ -1,4 +1,4 @@
-import { Autocomplete, TextField } from '@mui/material';
+import { Autocomplete, Card, CardContent, TextField } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -9,10 +9,10 @@ import { I_User } from '@/types/user';
 
 export default function Sidebar({
     setMessage,
-    setTurnOn,
+    setOpenToast,
 }: {
     setMessage: React.Dispatch<React.SetStateAction<string>>;
-    setTurnOn: React.Dispatch<React.SetStateAction<boolean>>;
+    setOpenToast: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     const [options, setOptions] = useState<{ label: string; id: string }[]>([]);
 
@@ -28,18 +28,10 @@ export default function Sidebar({
                 }));
                 setOptions(data);
                 setMessage(response.message);
-                setTurnOn(true);
-                setTimeout(() => {
-                    setTurnOn(false);
-                    setMessage('');
-                }, 3000);
+                setOpenToast(true);
             } catch {
                 setMessage('Loi khi lay du lieu!');
-                setTurnOn(true);
-                setTimeout(() => {
-                    setTurnOn(false);
-                    setMessage('');
-                }, 3000);
+                setOpenToast(true);
             }
         };
         fetchApi();
@@ -62,28 +54,48 @@ export default function Sidebar({
             dispatch(setUserId(value.id));
             const response = await postService.getPostsByUserId(value?.id);
             setMessage(response.message);
-            setTurnOn(true);
-            setTimeout(() => {
-                setTurnOn(false);
-                setMessage('');
-            }, 3000);
+            setOpenToast(true);
         } catch {
             setMessage('Loi khi lay du lieu!');
-            setTurnOn(true);
-            setTimeout(() => {
-                setTurnOn(false);
-                setMessage('');
-            }, 3000);
+            setOpenToast(true);
         }
     };
 
     return (
-        <Autocomplete
-            disablePortal
-            options={options}
-            renderInput={(params) => <TextField {...params} label="User" />}
-            className="w-full"
-            onChange={handleOnChangeSelect}
-        />
+        <Card
+            variant="outlined"
+            sx={{
+                height: 'calc(100vh - 86px)',
+                borderRadius: 3,
+                boxShadow: 3,
+                p: 2,
+                position: 'sticky',
+                top: 76,
+            }}
+        >
+            <CardContent>
+                <h1 className="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">Filter</h1>
+
+                <Autocomplete
+                    disablePortal
+                    options={options}
+                    onChange={handleOnChangeSelect}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="User"
+                            variant="outlined"
+                            fullWidth
+                            sx={{
+                                borderRadius: 2,
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 2,
+                                },
+                            }}
+                        />
+                    )}
+                />
+            </CardContent>
+        </Card>
     );
 }

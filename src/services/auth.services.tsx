@@ -1,12 +1,13 @@
 import axiosInstance from '@/lib/axiosInstance';
+import { I_CreateUser } from '@/types/user';
 
 const root = 'auth';
 
 export const authService = {
-    login: async (username: string, password: string) => {
+    login: async (email: string, password: string) => {
         try {
             const response = await axiosInstance.post(`/${root}/login`, {
-                username,
+                email,
                 password,
             });
             return response.data;
@@ -15,11 +16,21 @@ export const authService = {
         }
     },
 
-    register: async (name: string, password: string) => {
+    register: async (email: string) => {
         try {
-            const response = await axiosInstance.post(`/${root}/register`, {
-                name,
-                password,
+            const response = await axiosInstance.get(`/${root}/register/${email}`);
+            return response.data;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    },
+
+    verify: async (email: string, code: string, createUserDto: I_CreateUser) => {
+        try {
+            const response = await axiosInstance.post(`/${root}/register/verify`, {
+                email,
+                code,
+                createUserDto,
             });
             return response.data;
         } catch (error) {

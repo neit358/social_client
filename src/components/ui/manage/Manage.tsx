@@ -52,7 +52,7 @@ export default function Manage({ userId }: { userId: string }) {
     const [reload, setReload] = useState(false);
     const [message, setMessage] = useState<string>('');
     const [open, setOpen] = useState<boolean>(false);
-    const [turnOn, setTurnOn] = useState<boolean>(false);
+    const [openToast, setOpenToast] = useState<boolean>(false);
     const [close, setClose] = useState<boolean>(true);
     const [selected, setSelected] = useState<string[]>([]);
 
@@ -92,7 +92,7 @@ export default function Manage({ userId }: { userId: string }) {
         try {
             const response = await postService.deletePosts(selected);
             setMessage(response.message);
-            setTurnOn(true);
+            setOpenToast(true);
             setClose(true);
             setReload(!reload);
         } catch (error) {
@@ -113,14 +113,18 @@ export default function Manage({ userId }: { userId: string }) {
                 open={open}
                 postId={postId}
                 setMessage={setMessage}
-                setTurnOn={setTurnOn}
+                setOpenToast={setOpenToast}
                 type={'edit'}
                 setReload={setReload}
                 reload={reload}
             />
-            {turnOn && (
-                <Toast turnOn={turnOn} message={message} horizontal="right" vertical="bottom" />
-            )}
+            <Toast
+                openToast={openToast}
+                setOpenToast={setOpenToast}
+                message={message}
+                horizontal="right"
+                vertical="bottom"
+            />
             <Confirm
                 title="Delete"
                 message="Do you want delete post?"

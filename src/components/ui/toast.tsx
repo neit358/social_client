@@ -1,24 +1,24 @@
 'use client';
 import { Box, Snackbar } from '@mui/material';
-import { useState } from 'react';
 
 export default function Toast({
     message,
     vertical = 'bottom',
     horizontal = 'right',
-    turnOn,
+    openToast,
+    setOpenToast,
 }: {
     message: string;
     vertical?: 'top' | 'bottom';
     horizontal?: 'left' | 'right';
-    turnOn: boolean;
+    openToast: boolean;
+    setOpenToast: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-    const [open, setOpen] = useState(turnOn);
     return (
         <Box>
             <Snackbar
-                onClose={() => setOpen(false)}
-                open={open}
+                onClose={() => setOpenToast(false)}
+                open={openToast}
                 message={message}
                 anchorOrigin={{
                     vertical,

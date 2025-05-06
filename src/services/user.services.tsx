@@ -1,4 +1,5 @@
 import axiosInstance from '@/lib/axiosInstance';
+import { formDataChangePasswordSchema } from '@/types/formData';
 
 const root = 'user';
 
@@ -34,6 +35,15 @@ export const userService = {
             return response.data;
         } catch (error) {
             Promise.reject(error);
+        }
+    },
+
+    updatePassword: async (id: string, body: formDataChangePasswordSchema) => {
+        try {
+            const response = await axiosInstance.patch(`/${root}/update-password/${id}`, body);
+            return response.data;
+        } catch (error) {
+            return Promise.reject(error);
         }
     },
 };

@@ -27,7 +27,7 @@ export default function PostActions({ id: postId }: Partial<I_Post>) {
     }, [postId, action]);
 
     return (
-        <div className="flex justify-around mt-3 pt-4 pb-2 border-t border-gray-300 rounded-b-2xl bg-white">
+        <div className="flex justify-around mt-3 border-1 border-gray-300 rounded-b-2xl bg-white">
             <ButtonPost
                 icon={<ThumbUpIcon />}
                 quality={likes.length}

@@ -7,15 +7,7 @@ import {
     DialogTitle,
 } from '@mui/material';
 
-interface ConfirmProps {
-    open: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-    title: string;
-    message: string;
-    btnAgree: string;
-    btnDisagree: string;
-}
+import { ConfirmProps } from '@/types/confirm';
 
 export default function Confirm({
     title,

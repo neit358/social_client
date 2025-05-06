@@ -1,48 +1,69 @@
 'use client';
-import { Box, Card, CardContent, TextField } from '@mui/material';
+import { Card, CardContent } from '@mui/material';
 import Image from 'next/image';
 import React, { useState } from 'react';
 
 import Toast from '../toast';
 import ModalRegisterPost from './modal_register_post/Modal_register_post';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 
-export default function Register_post() {
+export default function Register_post({
+    setReLoading,
+    reloading,
+}: {
+    setReLoading?: React.Dispatch<React.SetStateAction<boolean>>;
+    reloading?: boolean;
+}) {
     const [open, setOpen] = useState(false);
-    const [turnOn, setTurnOn] = useState(false);
+    const [openToast, setOpenToast] = useState(false);
     const [message, setMessage] = useState<string>('');
 
-    return (
-        <Card variant="outlined" className="rounded-r-2xl">
-            <CardContent className="flex gap-3 items-center">
-                <Box>
-                    <Image src="/next.svg" alt="avatar" width={50} height={50} />
-                </Box>
+    const user = useSelector((state: RootState) => state.auth);
 
-                <Box className="flex-1 group">
-                    <TextField
-                        type="text"
-                        placeholder="What's on your mind?"
-                        fullWidth
-                        InputProps={{ readOnly: true }}
-                        onClick={() => setOpen(true)}
-                        className="group-hover:bg-gray-100"
-                    />
-                </Box>
+    const handleOpenModalRegisterPost = () => {
+        if (user.id) {
+            setOpen(true);
+        } else {
+            setMessage('Please login to create a post!');
+            setOpenToast(true);
+        }
+    };
+
+    return (
+        <Card variant="outlined" sx={{ borderRadius: 3 }}>
+            <CardContent className="flex gap-3 items-center">
+                <Image
+                    src={user.avatar || '/next.svg'}
+                    alt="avatar"
+                    width={50}
+                    height={50}
+                    className="w-12 h-12 object-cover rounded-full border-1 border-gray-300"
+                />
+                <input
+                    placeholder="What's on your mind?"
+                    className="w-full p-3 bg-gray-200 outline-none rounded-2xl cursor-pointer hover:bg-gray-300 "
+                    onClick={handleOpenModalRegisterPost}
+                    readOnly
+                    type="text"
+                    style={{ cursor: 'pointer' }}
+                />
             </CardContent>
             <ModalRegisterPost
-                setTurnOn={setTurnOn}
+                setOpenToast={setOpenToast}
                 setMessage={setMessage}
                 setOpen={setOpen}
                 open={open}
+                setReLoading={setReLoading}
+                reloading={reloading}
             />
-            {turnOn && (
-                <Toast
-                    vertical={'bottom'}
-                    horizontal={'right'}
-                    message={message || 'Chua xac dinh'}
-                    turnOn={turnOn}
-                />
-            )}
+            <Toast
+                vertical={'bottom'}
+                horizontal={'right'}
+                message={message || 'Chua xac dinh'}
+                openToast={openToast}
+                setOpenToast={setOpenToast}
+            />
         </Card>
     );
 }

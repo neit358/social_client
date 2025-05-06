@@ -1,25 +1,35 @@
 'use client';
-import { authService } from '@/services/auth.services';
-import { setUser } from '@/store/authSlice';
+import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'next/navigation';
-import * as Yup from 'yup';
-import { Card, CardContent } from '@mui/material';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { Box, Card, CardContent } from '@mui/material';
+import { useState } from 'react';
+
 import Input from '../../input';
+import { setUser } from '@/store/authSlice';
+import { authService } from '@/services/auth.services';
+import Toast from '../../toast';
+import Loading from '../../loading';
 
 interface FormData {
-    name: string;
+    email: string;
     password: string;
 }
 
 const schema = Yup.object().shape({
-    name: Yup.string().required('Username is required'),
+    email: Yup.string().required('Username is required'),
     password: Yup.string().required('Password is required'),
 });
 
 export default function Login() {
+    const [message, setMessage] = useState('');
+    const [openToast, setOpenToast] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const dispatch = useDispatch();
+    const router = useRouter();
+
     const {
         register,
         handleSubmit,
@@ -28,23 +38,24 @@ export default function Login() {
         resolver: yupResolver(schema),
     });
 
-    const dispatch = useDispatch();
-    const router = useRouter();
-
     const onSubmit = async (data: FormData): Promise<void> => {
         try {
-            const { name, password } = data;
-            const response = await authService.login(name, password);
-            dispatch(setUser({ ...response }));
-            router.push('/home');
-        } catch (error) {
-            console.error('Error fetching user:', error);
+            const { email, password } = data;
+            setIsLoading(true);
+            const response = await authService.login(email, password);
+            dispatch(setUser({ ...response.data }));
+            setMessage('Login successfully!');
+            setOpenToast(true);
+            setIsLoading(false);
+            router.push('/');
+        } catch {
+            setMessage('Login error!');
+            setOpenToast(true);
         }
     };
-
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-            <Card sx={{ minWidth: 400 }}>
+        <Box className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+            <Card sx={{ minWidth: 400, borderRadius: 3 }}>
                 <CardContent className="flex flex-col gap-y-3">
                     <h1 className="text-2xl font-bold text-center">Login</h1>
                     <p className="text-center">Login to your account</p>
@@ -53,19 +64,18 @@ export default function Login() {
                         className="flex flex-col items-center justify-center gap-y-5"
                     >
                         <Input
-                            placeholder="name"
-                            className=""
-                            register={register('name')}
-                            errors={errors.name}
+                            placeholder="email"
+                            register={register('email')}
+                            errors={errors.email}
                             type="text"
                         />
                         <Input
                             placeholder="password"
-                            className=""
                             register={register('password')}
                             errors={errors.password}
-                            type="text"
+                            type="password"
                         />
+
                         <button type="submit" className="p-2 bg-blue-500 text-white rounded">
                             Login
                         </button>
@@ -78,6 +88,15 @@ export default function Login() {
                     </form>
                 </CardContent>
             </Card>
-        </div>
+            <Toast
+                openToast={openToast}
+                setOpenToast={setOpenToast}
+                message={message}
+                horizontal="right"
+                vertical="bottom"
+            />
+
+            {isLoading && <Loading></Loading>}
+        </Box>
     );
 }

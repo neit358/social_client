@@ -94,4 +94,13 @@ export const postService = {
             return Promise.reject(error);
         }
     },
+
+    getUserLikedByPostId: async (postId: string) => {
+        try {
+            const response = await axiosInstance.get(`/${root}/user/list/${postId}`);
+            return response.data;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    },
 };

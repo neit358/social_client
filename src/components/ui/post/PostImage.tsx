@@ -6,9 +6,9 @@ export default function PostImage({ image }: { image: string }) {
             <Image
                 src={image}
                 alt="Post image"
-                width={500}
+                width={800}
                 height={500}
-                className="w-full h-full"
+                className="w-full h-auto"
             />
         </div>
     );

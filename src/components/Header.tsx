@@ -7,6 +7,7 @@ import {
     Box,
     IconButton,
     InputBase,
+    Link,
     Menu,
     MenuItem,
     styled,
@@ -17,8 +18,11 @@ import {
 import { useEffect, useState } from 'react';
 
 import SearchIcon from '@mui/icons-material/Search';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setHeaderSearch } from '@/store/headerSlice';
+import { clearUser } from '@/store/authSlice';
+import { useRouter } from 'next/navigation';
+import { RootState } from '@/store';
 const settings = [
     {
         name: 'Profile',
@@ -28,7 +32,6 @@ const settings = [
         name: 'Manage',
         href: '/manage',
     },
-    { name: 'Log out', href: '/logout' },
 ];
 
 const Search = styled('div')(({ theme }) => ({
@@ -76,10 +79,11 @@ export default function Header() {
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
     const [search, setSearch] = useState<string>('');
     const dispatch = useDispatch();
+    const router = useRouter();
+    const user = useSelector((state: RootState) => state.auth);
 
     useEffect(() => {
         const handler = setTimeout(() => {
-            console.log(search);
             dispatch(setHeaderSearch(search));
         }, 600);
 
@@ -87,6 +91,11 @@ export default function Header() {
             clearTimeout(handler);
         };
     }, [search, dispatch]);
+
+    const handleLogout = () => {
+        dispatch(clearUser());
+        router.push('/login');
+    };
 
     return (
         <AppBar position="fixed">
@@ -96,7 +105,14 @@ export default function Header() {
                     component="div"
                     className="flex w-full items-center justify-between"
                 >
-                    <p className="flex-1/3">Social Media App</p>
+                    <Box className="flex-1/3">
+                        <Link
+                            href="/"
+                            sx={{ textDecoration: 'none', fontSize: '1.5rem', color: 'white' }}
+                        >
+                            Social Media App
+                        </Link>
+                    </Box>
                     <Search className="flex-1/3">
                         <SearchIconWrapper>
                             <SearchIcon />
@@ -114,12 +130,11 @@ export default function Header() {
                         <Tooltip title="Open settings">
                             <IconButton
                                 onClick={(event: React.MouseEvent<HTMLElement>) => {
-                                    console.log(event.currentTarget);
                                     setAnchorElUser(event.currentTarget);
                                 }}
                                 sx={{ p: 0 }}
                             >
-                                <Avatar alt="Remy Sharp" src="" />
+                                <Avatar alt="Remy Sharp" src={user.avatar} />
                             </IconButton>
                         </Tooltip>
                         <Menu
@@ -138,18 +153,32 @@ export default function Header() {
                             open={Boolean(anchorElUser)}
                             onClose={() => setAnchorElUser(null)}
                         >
-                            {settings.map((setting) => (
+                            {user.id &&
+                                settings.map((setting) => (
+                                    <MenuItem
+                                        key={setting.name}
+                                        onClick={() => setAnchorElUser(null)}
+                                        href={setting.href}
+                                        component="a"
+                                    >
+                                        <Typography sx={{ textAlign: 'center' }}>
+                                            {setting.name}
+                                        </Typography>
+                                    </MenuItem>
+                                ))}
+                            {user.id ? (
+                                <MenuItem onClick={handleLogout}>
+                                    <Typography>Logout</Typography>
+                                </MenuItem>
+                            ) : (
                                 <MenuItem
-                                    key={setting.name}
                                     onClick={() => setAnchorElUser(null)}
-                                    href={setting.href}
+                                    href="/login"
                                     component="a"
                                 >
-                                    <Typography sx={{ textAlign: 'center' }}>
-                                        {setting.name}
-                                    </Typography>
+                                    <Typography sx={{ textAlign: 'center' }}>Login</Typography>
                                 </MenuItem>
-                            ))}
+                            )}
                         </Menu>
                     </Box>
                 </Typography>

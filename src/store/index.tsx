@@ -6,7 +6,7 @@ import authReducer from './authSlice';
 import sidebarReducer from './sidebarSlice';
 import headerReducer from './headerSlice';
 
-const persitConfig = {
+const persistConfig = {
     key: 'root',
     storage,
     blacklist: ['sidebar', 'header'],
@@ -18,7 +18,7 @@ const rootReducer = combineReducers({
     header: headerReducer,
 });
 
-const persistedReducer = persistReducer(persitConfig, rootReducer);
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
     reducer: persistedReducer,

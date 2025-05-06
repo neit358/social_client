@@ -18,22 +18,26 @@ const schema = Yup.object().shape({
 
 export default function ModalRegisterPost({
     setMessage,
-    setTurnOn,
+    setOpenToast,
     setOpen,
     open,
     postId,
     type = 'post',
-    reload,
     setReload,
+    reload,
+    setReLoading,
+    reloading,
 }: {
     setMessage: React.Dispatch<React.SetStateAction<string>>;
-    setTurnOn: React.Dispatch<React.SetStateAction<boolean>>;
+    setOpenToast: React.Dispatch<React.SetStateAction<boolean>>;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
     open: boolean;
     postId?: string;
     type?: string;
-    reload?: boolean;
     setReload?: React.Dispatch<React.SetStateAction<boolean>>;
+    reload?: boolean;
+    setReLoading?: React.Dispatch<React.SetStateAction<boolean>>;
+    reloading?: boolean;
 }) {
     const [preview, setPreview] = useState<string | null>(null);
     const [file, setFile] = useState<File | null>(null);
@@ -68,22 +72,13 @@ export default function ModalRegisterPost({
             setFile(null);
             setOpen(false);
             setMessage(response.message);
-            setTurnOn(true);
-            if (setReload) {
-                setReload(!reload);
-            }
-            setTimeout(() => {
-                setTurnOn(false);
-                setMessage('');
-            }, 3000);
+            setOpenToast(true);
+            if (setReLoading) setReLoading(!reloading);
+            if (setReload) setReload(!reload);
         } catch {
             setMessage('Error post api!');
             setOpen(false);
-            setTurnOn(true);
-            setTimeout(() => {
-                setTurnOn(false);
-                setMessage('');
-            }, 3000);
+            setOpenToast(true);
         }
     };
 
@@ -110,7 +105,7 @@ export default function ModalRegisterPost({
         <Modal open={open} onClose={() => setOpen(false)}>
             <Card
                 className="absolute top-1/2 left-1/2 w-[500px] p-4"
-                sx={{ transform: 'translate(-50%, -50%)' }}
+                sx={{ transform: 'translate(-50%, -50%)', borderRadius: 3 }}
             >
                 <CardContent>
                     <form className="flex flex-col gap-4" onSubmit={handleSubmit(onsubmit)}>
@@ -120,6 +115,7 @@ export default function ModalRegisterPost({
                                 alt="avatar"
                                 width={50}
                                 height={50}
+                                className="rounded-full w-15 h-15 object-cover border-1 border-gray-300"
                             />
                             <Typography fontWeight="bold">{user.name}</Typography>
                         </Box>
@@ -131,6 +127,12 @@ export default function ModalRegisterPost({
                                 {...register('title')}
                                 error={!!errors.title}
                                 helperText={errors.title?.message}
+                                sx={{
+                                    '& .MuiFilledInput-root': {
+                                        borderTopLeftRadius: 8,
+                                        borderTopRightRadius: 8,
+                                    },
+                                }}
                             />
                         </Box>
 
@@ -145,6 +147,12 @@ export default function ModalRegisterPost({
                                 {...register('content')}
                                 error={!!errors.content}
                                 helperText={errors.content?.message}
+                                sx={{
+                                    '& .MuiFilledInput-root': {
+                                        borderTopLeftRadius: 8,
+                                        borderTopRightRadius: 8,
+                                    },
+                                }}
                             />
                         </Box>
 
@@ -158,7 +166,7 @@ export default function ModalRegisterPost({
                                     height={100}
                                     src={preview}
                                     alt="preview"
-                                    className="w-full h-full"
+                                    className="w-full h-full object-cover rounded border-1 border-gray-300"
                                 />
                             ) : (
                                 <AddIcon fontSize="large" />
