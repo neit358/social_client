@@ -4,7 +4,7 @@ export default function PostImage({ image }: { image: string }) {
     return (
         <div className="relative p-5">
             <Image
-                src={image}
+                src={image || './next.svg'}
                 alt="Post image"
                 width={800}
                 height={500}
