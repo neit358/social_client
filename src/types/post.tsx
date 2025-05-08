@@ -1,10 +1,12 @@
-export interface I_Post {
-    id: string;
+import { I_User } from './user';
+
+export interface I_CreatePost {
+    user?: I_User;
     content: string;
     title: string;
     image: string;
 }
 
-export interface I_CreatePost extends I_Post {
-    userId: string;
+export interface I_Post extends I_CreatePost {
+    id: string;
 }

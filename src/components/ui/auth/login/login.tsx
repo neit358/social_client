@@ -11,7 +11,7 @@ import Input from '../../input';
 import { setUser } from '@/store/authSlice';
 import { authService } from '@/services/auth.services';
 import Toast from '../../toast';
-import Loading from '../../loading';
+import LoadingPage from '../../loadingPage';
 
 interface FormData {
     email: string;
@@ -53,6 +53,7 @@ export default function Login() {
             setOpenToast(true);
         }
     };
+
     return (
         <Box className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
             <Card sx={{ minWidth: 400, borderRadius: 3 }}>
@@ -96,7 +97,7 @@ export default function Login() {
                 vertical="bottom"
             />
 
-            {isLoading && <Loading></Loading>}
+            {isLoading && <LoadingPage />}
         </Box>
     );
 }

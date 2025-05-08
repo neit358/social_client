@@ -1,54 +1,43 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Box } from '@mui/material';
 
 import { postService } from '@/services/post.services';
 import Toast from '@/components/ui/toast';
-import { I_CreatePost } from '@/types/post';
+import { I_Post } from '@/types/post';
 import Header from '@/components/Header';
 import Post from '@/components/ui/post/Post';
 import Register_post from '@/components/ui/register_post/Register_post';
 import Sidebar from '@/components/Sidbar';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import { useQuery } from '@tanstack/react-query';
+import LoadingPage from '@/components/ui/loadingPage';
 
 export default function Home() {
     const [reloading, setReLoading] = useState(true);
     const [message, setMessage] = useState('');
     const [openToast, setOpenToast] = useState(false);
-    const [posts, setPosts] = useState<I_CreatePost[]>([]);
     const userId = useSelector((state: RootState) => state.sidebar.userId);
     const search = useSelector((state: RootState) => state.header.search);
-
-    useEffect(() => {
-        handleGetPosts();
-    }, [reloading]);
-
-    useEffect(() => {
-        handleGetPosts(userId);
-    }, [userId]);
-
-    useEffect(() => {
-        handleGetPosts(undefined, search);
-    }, [search]);
-
-    const handleGetPosts = async (userId?: string, search?: string) => {
-        try {
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['posts', userId, search],
+        queryFn: async () => {
             const response =
                 userId && userId !== ''
                     ? await postService.getPostsByUserId(userId)
-                    : search
-                    ? await postService.getPostsSearch(search)
-                    : await postService.getPosts();
-            setPosts(response.data);
-            setMessage(response.message);
+                    : await postService.getPostsSearchElastic(search);
+            setMessage('Posts fetched successfully');
             setOpenToast(true);
-        } catch {
-            setMessage('Loi khi lay du lieu!');
-            setOpenToast(true);
-        }
-    };
+            return response.data;
+        },
+    });
+
+    if (error) {
+        setMessage('Error fetching posts');
+        setOpenToast(true);
+    }
 
     return (
         <Box>
@@ -60,15 +49,14 @@ export default function Home() {
                     </div>
                     <div className="col-span-8 flex flex-col gap-4">
                         <Register_post setReLoading={setReLoading} reloading={reloading} />
-                        {posts.map((post) => (
+                        {data?.map((post: I_Post) => (
                             <Post
                                 key={post.id}
                                 id={post.id}
-                                userId={post.userId}
+                                user={post.user}
                                 content={post.content}
                                 title={post.title}
                                 image={post.image}
-                                type="post"
                             />
                         ))}
                     </div>
@@ -81,6 +69,7 @@ export default function Home() {
                     vertical="bottom"
                 />
             </div>
+            {isLoading && <LoadingPage />}
         </Box>
     );
 }

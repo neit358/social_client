@@ -39,6 +39,15 @@ export const postService = {
         }
     },
 
+    getPostsSearchElastic: async (search: string) => {
+        try {
+            const response = await axiosInstance.get(`/${root}/search/elastic?title=${search}`);
+            return response.data;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    },
+
     createPost: async (title: string, content: string, userId: string, image: File) => {
         try {
             const formData = new FormData();

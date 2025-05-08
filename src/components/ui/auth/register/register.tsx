@@ -45,10 +45,11 @@ export default function Register() {
     const onSubmit = async (data: I_CreateUser): Promise<void> => {
         try {
             const { email } = data;
-            await authService.register(email);
+            await authService.register(email, 60);
             setOpen(true);
-        } catch (error) {
-            console.error('Error fetching user:', error);
+        } catch {
+            setMessage('Create user failed!');
+            setOpenToast(true);
         }
     };
 
@@ -106,30 +107,32 @@ export default function Register() {
                 </CardContent>
             </Card>
 
-            <Modal open={open} onClose={() => setOpen(false)}>
-                <Box className="flex items-center justify-center h-screen">
-                    <Card sx={{ maxWidth: 500, borderRadius: 3 }} className="flex flex-col gap-y-3">
-                        <CardContent className="flex flex-col gap-y-3">
-                            <h1 className="text-2xl font-bold text-center">Verify OTP</h1>
-                            <p className="text-center">Enter the OTP sent to your email</p>
-                            <MuiOtpInput
-                                length={6}
-                                value={otp}
-                                onChange={(value: string) => {
-                                    setOtp(value);
-                                }}
-                            />
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                color="primary"
-                                onClick={handleSubmit(onVerify)}
-                            >
-                                Verify
-                            </Button>
-                        </CardContent>
-                    </Card>
-                </Box>
+            <Modal
+                open={open}
+                onClose={() => setOpen(false)}
+                className="flex items-center justify-center h-screen"
+            >
+                <Card sx={{ maxWidth: 500, borderRadius: 3 }} className="flex flex-col gap-y-3">
+                    <CardContent className="flex flex-col gap-y-3">
+                        <h1 className="text-2xl font-bold text-center">Verify OTP</h1>
+                        <p className="text-center">Enter the OTP sent to your email</p>
+                        <MuiOtpInput
+                            length={6}
+                            value={otp}
+                            onChange={(value: string) => {
+                                setOtp(value);
+                            }}
+                        />
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                            onClick={handleSubmit(onVerify)}
+                        >
+                            Verify
+                        </Button>
+                    </CardContent>
+                </Card>
             </Modal>
             <Toast
                 message={message}

@@ -16,9 +16,9 @@ export const authService = {
         }
     },
 
-    register: async (email: string) => {
+    register: async (email: string, seconds: number) => {
         try {
-            const response = await axiosInstance.get(`/${root}/register/${email}`);
+            const response = await axiosInstance.get(`/${root}/register/${email}/${seconds}`);
             return response.data;
         } catch (error) {
             return Promise.reject(error);

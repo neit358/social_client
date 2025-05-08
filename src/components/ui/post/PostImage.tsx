@@ -1,8 +1,9 @@
+import { Box } from '@mui/material';
 import Image from 'next/image';
 
 export default function PostImage({ image }: { image: string }) {
     return (
-        <div className="relative p-5">
+        <Box className="relative p-5">
             <Image
                 src={image || './next.svg'}
                 alt="Post image"
@@ -10,6 +11,6 @@ export default function PostImage({ image }: { image: string }) {
                 height={500}
                 className="w-full h-auto"
             />
-        </div>
+        </Box>
     );
 }

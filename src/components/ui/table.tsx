@@ -40,7 +40,7 @@ type Order = 'asc' | 'desc';
 function getComparator<Key extends keyof I_Post>(
     order: Order,
     orderBy: Key,
-): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
+): (a: I_Post, b: I_Post) => number {
     return order === 'desc'
         ? (a, b) => descendingComparator(a, b, orderBy)
         : (a, b) => -descendingComparator(a, b, orderBy);
