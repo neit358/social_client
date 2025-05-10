@@ -1,5 +1,5 @@
 import axiosInstance, { handleGetAccessToken } from '@/lib/axiosInstance';
-import { I_CreateUser } from '@/types/user.interface';
+import { I_Auth_Verify } from '@/types/auth.interface';
 const root = 'auth';
 
 export const authService = {
@@ -38,7 +38,7 @@ export const authService = {
         }
     },
 
-    verify: async (email: string, code: string, createUserDto: I_CreateUser) => {
+    verify: async ({ email, code, createUserDto }: I_Auth_Verify) => {
         try {
             const response = await axiosInstance.post(`/${root}/register/verify`, {
                 email,

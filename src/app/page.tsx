@@ -56,6 +56,7 @@ export default function Home() {
                                 content={post.content}
                                 title={post.title}
                                 image={post.image}
+                                userId={post.userId}
                             />
                         ))}
                     </div>

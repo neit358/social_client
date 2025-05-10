@@ -11,9 +11,9 @@ import Confirm from '../confirm';
 import { GridColDef } from '@mui/x-data-grid';
 import Table from '../table';
 import Image from 'next/image';
-import { useQuery } from '@tanstack/react-query';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { usePosts } from '@/hooks/post.hook';
 
 export const ManageContext = createContext(null);
 
@@ -27,20 +27,10 @@ export default function Manage({ userId }: { userId: string }) {
     const [close, setClose] = useState<boolean>(true);
     const [selected, setSelected] = useState<string[]>([]);
 
-    const {
-        data: posts,
-        isLoading,
-        refetch,
-    } = useQuery<I_Post[]>({
-        queryKey: ['posts'],
-        queryFn: async () => {
-            const response = await postService.getPostsByUserId(userId);
-            return response.data;
-        },
-    });
+    const { data: posts, isLoading, refetch } = usePosts(userId);
 
     const rows =
-        posts?.map((post) => ({
+        posts?.map((post: I_Post) => ({
             id: post.id,
             title: post.title,
             content: post.content,

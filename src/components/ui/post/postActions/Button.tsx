@@ -1,34 +1,25 @@
 import { JSX } from '@emotion/react/jsx-runtime';
-import { useState } from 'react';
-import { likeService } from '@/services/like.services';
 
-import ListLiked from './ListLiked';
 import { RootState } from '@/store';
 import { useSelector } from 'react-redux';
-import { useLike } from '@/hooks/like.hook';
-import { useUserLiked } from '@/hooks/post.hook';
-import CircularIndeterminate from '../../CircularIndeterminate';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCreateReaction, useLike } from '@/hooks/like.hook';
 
 interface I_ButtonPost {
     icon: JSX.Element;
-    quantity?: number;
     type: string;
     postId: string;
 }
 
-export default function ButtonPost({ icon, quantity, type, postId }: I_ButtonPost) {
-    const [showListLiked, setShowListLiked] = useState(false);
+export default function ButtonPost({ icon, type, postId }: I_ButtonPost) {
     const user = useSelector((state: RootState) => state.auth);
 
-    const { data: users = [], isLoading: isLoadingQuantityUserLiked } = useUserLiked(postId);
-    const { data: like, isLoading: isLoadingLike } = useLike(postId, user.id);
-
-    const queryClient = useQueryClient();
+    const { data: like } = useLike(postId, user.id);
+    const { mutate } = useCreateReaction();
 
     const handleClickButtonAction = () => {
         switch (type) {
             case 'like':
+                console.log('like');
                 mutate({
                     postId: postId,
                     userId: user.id,
@@ -41,65 +32,35 @@ export default function ButtonPost({ icon, quantity, type, postId }: I_ButtonPos
         }
     };
 
-    const handleClickQuantityLike = (event: React.MouseEvent<HTMLElement>) => {
-        event.stopPropagation();
-        setShowListLiked(!showListLiked);
-    };
-
-    const useCreateReaction = () => {
-        return useMutation({
-            mutationFn: async ({ postId, userId }: { postId: string; userId: string }) => {
-                console.log('postId', postId);
-                const response = await likeService.actionLike(postId, userId);
-                queryClient.invalidateQueries({ queryKey: ['likes', postId] });
-                return response;
-            },
-            onMutate: (data) => {
-                const { postId, userId } = data;
-                queryClient.setQueryData(
-                    ['like', postId, userId],
-                    (data: { isLiked: boolean }) => ({
-                        isLiked: data ? !data.isLiked : true,
-                    }),
-                );
-            },
-        });
-    };
-
-    const { mutate } = useCreateReaction();
-
     return (
         <div
-            className="w-full flex flex-col items-center justify-center gap-1 rounded-b-2xl cursor-pointer py-4 px-2 hover:bg-gray-100 transition-colors"
+            className="w-full flex items-center justify-center gap-1 cursor-pointer p-2 hover:bg-gray-100 transition-colors"
             onClick={handleClickButtonAction}
         >
-            {isLoadingLike ? (
-                <CircularIndeterminate />
-            ) : (
-                <>
-                    <div
-                        className={`flex items-center gap-1 text-sm font-semibold transition-colors ${
-                            type === 'like' && like?.isLiked ? 'text-amber-500' : 'text-gray-500'
-                        }`}
-                    >
-                        {icon}
-                        {quantity !== undefined && (
-                            <span className="hover:underline" onClick={handleClickQuantityLike}>
-                                {quantity}
-                            </span>
-                        )}
-                    </div>
+            {(() => {
+                switch (type) {
+                    case 'like':
+                        return (
+                            <div
+                                className={`flex items-center gap-1 text-sm font-semibold transition-colors ${
+                                    like?.isLiked ? 'text-amber-500' : 'text-gray-500'
+                                }`}
+                            >
+                                {icon}
+                            </div>
+                        );
+                    default:
+                        return (
+                            <div
+                                className={`flex items-center gap-1 text-sm font-semibold transition-colors text-gray-500`}
+                            >
+                                {icon}
+                            </div>
+                        );
+                }
+            })()}
 
-                    {postId && (
-                        <ListLiked
-                            setShowListLiked={setShowListLiked}
-                            showListLiked={showListLiked}
-                            isLoading={isLoadingQuantityUserLiked}
-                            users={users}
-                        />
-                    )}
-                </>
-            )}
+            <p>{type}</p>
         </div>
     );
 }

@@ -5,13 +5,13 @@ import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Box, Card, CardContent } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Input from '../../input';
 import { setUser } from '@/store/authSlice';
-import { authService } from '@/services/auth.services';
 import Toast from '../../toast';
 import LoadingPage from '../../loadingPage';
+import { useLogin } from '@/hooks/auth.hook';
 
 interface FormData {
     email: string;
@@ -26,9 +26,16 @@ const schema = Yup.object().shape({
 export default function Login() {
     const [message, setMessage] = useState('');
     const [openToast, setOpenToast] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
     const dispatch = useDispatch();
     const router = useRouter();
+
+    const {
+        mutate: login,
+        data: responseLogin,
+        isSuccess: successLogin,
+        isError: errorLogin,
+        isPending: pendingLogin,
+    } = useLogin();
 
     const {
         register,
@@ -38,22 +45,23 @@ export default function Login() {
         resolver: yupResolver(schema),
     });
 
-    const onSubmit = async (data: FormData): Promise<void> => {
-        try {
-            const { email, password } = data;
-            setIsLoading(true);
-            const response = await authService.login(email, password);
-            dispatch(setUser({ ...response.data }));
+    const onSubmit = (data: FormData) => {
+        login(data);
+    };
+
+    useEffect(() => {
+        if (successLogin && responseLogin) {
+            dispatch(setUser({ ...responseLogin.data }));
             setMessage('Login successfully!');
             setOpenToast(true);
-            setIsLoading(false);
             router.push('/');
-        } catch {
+        }
+
+        if (errorLogin) {
             setMessage('Login error!');
             setOpenToast(true);
-            setIsLoading(false);
         }
-    };
+    }, [successLogin, responseLogin, dispatch, router, errorLogin]);
 
     return (
         <Box className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
@@ -98,7 +106,7 @@ export default function Login() {
                 vertical="bottom"
             />
 
-            {isLoading && <LoadingPage />}
+            {pendingLogin && <LoadingPage />}
         </Box>
     );
 }

@@ -6,4 +6,5 @@ export interface I_Post {
     title: string;
     image: string;
     user: I_User;
+    userId: string;
 }

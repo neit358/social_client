@@ -16,15 +16,16 @@ import {
     Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-
 import SearchIcon from '@mui/icons-material/Search';
 import { useDispatch, useSelector } from 'react-redux';
-import { setHeaderSearch } from '@/store/headerSlice';
-import { clearUser } from '@/store/authSlice';
-import { useRouter } from 'next/navigation';
-import { RootState } from '@/store';
-import { authService } from '@/services/auth.services';
+
 import Toast from './ui/toast';
+import { RootState } from '@/store';
+import { useRouter } from 'next/navigation';
+import { clearUser } from '@/store/authSlice';
+import { useLogout } from '@/hooks/auth.hook';
+import { setHeaderSearch } from '@/store/headerSlice';
+import LoadingPage from './ui/loadingPage';
 const settings = [
     {
         name: 'Profile',
@@ -78,13 +79,23 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function Header() {
-    const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
-    const [search, setSearch] = useState<string>('');
-    const [openToast, setOpenToast] = useState(false);
     const [message, setMessage] = useState('');
-    const dispatch = useDispatch();
+    const [openToast, setOpenToast] = useState(false);
+    const [search, setSearch] = useState<string>('');
+    const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+
     const router = useRouter();
+    const dispatch = useDispatch();
+
     const user = useSelector((state: RootState) => state.auth);
+
+    const {
+        mutate: logout,
+        data: responseLogout,
+        isSuccess: successLogout,
+        isError: errorLogout,
+        isPending: pendingLogout,
+    } = useLogout();
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -96,16 +107,17 @@ export default function Header() {
         };
     }, [search, dispatch]);
 
-    const handleLogout = async () => {
-        try {
-            await authService.logout();
+    useEffect(() => {
+        if (successLogout && responseLogout) {
             dispatch(clearUser());
             router.push('/login');
-        } catch {
-            setMessage('Loi khi lay du lieu!');
+        }
+
+        if (errorLogout) {
+            setMessage('Logout failed!');
             setOpenToast(true);
         }
-    };
+    }, [successLogout, responseLogout, dispatch, router, errorLogout]);
 
     return (
         <AppBar position="fixed">
@@ -177,7 +189,11 @@ export default function Header() {
                                     </MenuItem>
                                 ))}
                             {user.id ? (
-                                <MenuItem onClick={handleLogout}>
+                                <MenuItem
+                                    onClick={() => {
+                                        logout();
+                                    }}
+                                >
                                     <Typography>Logout</Typography>
                                 </MenuItem>
                             ) : (
@@ -198,6 +214,7 @@ export default function Header() {
                         horizontal="right"
                         vertical="bottom"
                     />
+                    {pendingLogout && <LoadingPage />}
                 </Typography>
             </Toolbar>
         </AppBar>

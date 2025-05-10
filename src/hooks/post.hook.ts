@@ -14,3 +14,14 @@ export const useUserLiked = (postId: string) => {
         },
     });
 };
+
+export const usePosts = (userId: string) => {
+    return useQuery({
+        queryKey: ['posts'],
+        queryFn: async () => {
+            if (!userId) return;
+            const response = await postService.getPostsByUserId(userId);
+            return response.data;
+        },
+    });
+};
