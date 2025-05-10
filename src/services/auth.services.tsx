@@ -1,6 +1,5 @@
-import axiosInstance from '@/lib/axiosInstance';
-import { I_CreateUser } from '@/types/user';
-
+import axiosInstance, { handleGetAccessToken } from '@/lib/axiosInstance';
+import { I_CreateUser } from '@/types/user.interface';
 const root = 'auth';
 
 export const authService = {
@@ -9,6 +8,20 @@ export const authService = {
             const response = await axiosInstance.post(`/${root}/login`, {
                 email,
                 password,
+            });
+            return response.data;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    },
+
+    logout: async () => {
+        try {
+            const token = handleGetAccessToken();
+            const response = await axiosInstance.get(`/${root}/logout`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             });
             return response.data;
         } catch (error) {
@@ -32,6 +45,15 @@ export const authService = {
                 code,
                 createUserDto,
             });
+            return response.data;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    },
+
+    checkAuth: async () => {
+        try {
+            const response = await axiosInstance.get(`/${root}/check`);
             return response.data;
         } catch (error) {
             return Promise.reject(error);

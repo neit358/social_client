@@ -2,20 +2,20 @@
 
 import * as Yup from 'yup';
 import Image from 'next/image';
-import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import React, { useRef, useState } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useDispatch, useSelector } from 'react-redux';
 import { Box, Button, Card, CardContent } from '@mui/material';
 
 import { RootState } from '@/store';
-import { userService } from '@/services/user.services';
 import Header from '@/components/Header';
 import Input from '@/components/ui/input';
 import Toast from '@/components/ui/toast';
 import { setUser } from '@/store/authSlice';
-import ChangePassword from './changePassword/changePassword';
+import { userService } from '@/services/user.services';
+import ModalChangePassword from './modal_change_password/Model_change_password';
 
 interface FormDataUser {
     name: string;
@@ -157,7 +157,7 @@ export default function Profile() {
                 openToast={openToast}
                 setOpenToast={setOpenToast}
             />
-            <ChangePassword
+            <ModalChangePassword
                 setOpen={setOpenChangePassword}
                 open={openChangePassword}
                 setOpenToast={setOpenToast}

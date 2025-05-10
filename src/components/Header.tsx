@@ -23,6 +23,8 @@ import { setHeaderSearch } from '@/store/headerSlice';
 import { clearUser } from '@/store/authSlice';
 import { useRouter } from 'next/navigation';
 import { RootState } from '@/store';
+import { authService } from '@/services/auth.services';
+import Toast from './ui/toast';
 const settings = [
     {
         name: 'Profile',
@@ -78,6 +80,8 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function Header() {
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
     const [search, setSearch] = useState<string>('');
+    const [openToast, setOpenToast] = useState(false);
+    const [message, setMessage] = useState('');
     const dispatch = useDispatch();
     const router = useRouter();
     const user = useSelector((state: RootState) => state.auth);
@@ -92,9 +96,15 @@ export default function Header() {
         };
     }, [search, dispatch]);
 
-    const handleLogout = () => {
-        dispatch(clearUser());
-        router.push('/login');
+    const handleLogout = async () => {
+        try {
+            await authService.logout();
+            dispatch(clearUser());
+            router.push('/login');
+        } catch {
+            setMessage('Loi khi lay du lieu!');
+            setOpenToast(true);
+        }
     };
 
     return (
@@ -181,6 +191,13 @@ export default function Header() {
                             )}
                         </Menu>
                     </Box>
+                    <Toast
+                        openToast={openToast}
+                        setOpenToast={setOpenToast}
+                        message={message}
+                        horizontal="right"
+                        vertical="bottom"
+                    />
                 </Typography>
             </Toolbar>
         </AppBar>

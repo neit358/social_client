@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { postService } from '@/services/post.services';
 import { userService } from '@/services/user.services';
 import { setUserId } from '@/store/sidebarSlice';
-import { I_User } from '@/types/user';
+import { I_User } from '@/types/user.interface';
 
 export default function Sidebar({
     setMessage,

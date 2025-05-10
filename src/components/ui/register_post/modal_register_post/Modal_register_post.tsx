@@ -8,8 +8,12 @@ import * as Yup from 'yup';
 import AddIcon from '@mui/icons-material/Add';
 
 import { RootState } from '@/store';
-import { FormData } from '@/types/formData';
 import { postService } from '@/services/post.services';
+
+interface FormData {
+    title: string;
+    content: string;
+}
 
 const schema = Yup.object().shape({
     title: Yup.string().required('Title is required'),
@@ -19,25 +23,16 @@ const schema = Yup.object().shape({
 export default function ModalRegisterPost({
     setMessage,
     setOpenToast,
-    setOpen,
-    open,
+    setOpenModal,
+    openModal,
     postId,
-    type = 'post',
-    setReload,
-    reload,
-    setReLoading,
-    reloading,
 }: {
+    type?: string;
     setMessage: React.Dispatch<React.SetStateAction<string>>;
     setOpenToast: React.Dispatch<React.SetStateAction<boolean>>;
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    open: boolean;
+    setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
+    openModal: boolean;
     postId?: string;
-    type?: string;
-    setReload?: React.Dispatch<React.SetStateAction<boolean>>;
-    reload?: boolean;
-    setReLoading?: React.Dispatch<React.SetStateAction<boolean>>;
-    reloading?: boolean;
 }) {
     const [preview, setPreview] = useState<string | null>(null);
     const [file, setFile] = useState<File | null>(null);
@@ -64,28 +59,25 @@ export default function ModalRegisterPost({
 
     const onsubmit = async (data: FormData): Promise<void> => {
         try {
-            const response =
-                type === 'edit' && postId
-                    ? await postService.updatePost(postId, data.title, data.content, file as File)
-                    : await postService.createPost(data.title, data.content, user.id, file as File);
-            if (type !== 'edit' && !postId) setPreview(null);
+            const response = postId
+                ? await postService.updatePost(postId, data.title, data.content, file as File)
+                : await postService.createPost(data.title, data.content, user.id, file as File);
+            if (!postId) setPreview(null);
             setFile(null);
-            setOpen(false);
+            setOpenModal(false);
+            setOpenToast(true);
             setMessage(response.message);
-            setOpenToast(true);
-            if (setReLoading) setReLoading(!reloading);
-            if (setReload) setReload(!reload);
         } catch {
-            setMessage('Error post api!');
-            setOpen(false);
             setOpenToast(true);
+            setMessage('Error post api!');
+            setOpenModal(false);
         }
     };
 
     useEffect(() => {
         const fetchApi = async () => {
             try {
-                if (type === 'edit' && postId) {
+                if (postId) {
                     const response = await postService.getPostById(postId);
                     setPreview(response.data.image);
                     reset({
@@ -99,10 +91,10 @@ export default function ModalRegisterPost({
         };
 
         fetchApi();
-    }, [postId, reset, type]);
+    }, [postId, reset]);
 
     return (
-        <Modal open={open} onClose={() => setOpen(false)}>
+        <Modal open={openModal} onClose={() => setOpenModal(false)}>
             <Card
                 className="absolute top-1/2 left-1/2 w-[500px] p-4"
                 sx={{ transform: 'translate(-50%, -50%)', borderRadius: 3 }}
@@ -185,7 +177,7 @@ export default function ModalRegisterPost({
                             variant="contained"
                             disabled={!!errors.title || !!errors.content}
                         >
-                            {type === 'edit' ? 'Apply' : 'Create'}
+                            {postId ? 'Apply' : 'Create'}
                         </Button>
                     </form>
                 </CardContent>

@@ -6,7 +6,12 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { userService } from '@/services/user.services';
 import { RootState } from '@/store';
 import { useSelector } from 'react-redux';
-import { formDataChangePasswordSchema } from '@/types/formData';
+
+export interface formDataChangePasswordSchema {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+}
 
 const schema = Yup.object().shape({
     oldPassword: Yup.string().required('Current password is required'),
@@ -22,7 +27,7 @@ const schema = Yup.object().shape({
         .oneOf([Yup.ref('newPassword'), ''], 'Passwords must match'),
 });
 
-export default function ChangePassword({
+export default function ModalChangePassword({
     open,
     setOpen,
     setOpenToast,

@@ -23,9 +23,7 @@ export const likeService = {
 
     actionLike: async (postId: string, userId: string) => {
         try {
-            const response = await axiosInstance.post(`/${root}/action/${postId}`, {
-                userId,
-            });
+            const response = await axiosInstance.get(`/${root}/action/${postId}/${userId}`);
             return response.data;
         } catch (error) {
             return Promise.reject(error);

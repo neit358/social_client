@@ -12,7 +12,7 @@ import Input from '../../input';
 import { setUser } from '@/store/authSlice';
 import { authService } from '@/services/auth.services';
 import Toast from '../../toast';
-import { I_CreateUser } from '@/types/user';
+import { I_CreateUser } from '@/types/user.interface';
 
 const schema = Yup.object().shape({
     email: Yup.string().email('Email is invalid').required('Email is required'),
@@ -109,7 +109,10 @@ export default function Register() {
 
             <Modal
                 open={open}
-                onClose={() => setOpen(false)}
+                onClose={() => {
+                    setOpen(false);
+                    setOtp('');
+                }}
                 className="flex items-center justify-center h-screen"
             >
                 <Card sx={{ maxWidth: 500, borderRadius: 3 }} className="flex flex-col gap-y-3">

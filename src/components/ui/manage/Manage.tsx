@@ -1,85 +1,56 @@
 'use client';
 
 import { Box } from '@mui/material';
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useState } from 'react';
 
 import { postService } from '@/services/post.services';
-import { I_Post } from '@/types/post';
+import { I_Post } from '@/types/post.interface';
 import ModalRegisterPost from '../register_post/modal_register_post/Modal_register_post';
 import Toast from '../toast';
-import EnhancedTable from '../table';
 import Confirm from '../confirm';
+import { GridColDef } from '@mui/x-data-grid';
+import Table from '../table';
+import Image from 'next/image';
+import { useQuery } from '@tanstack/react-query';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export const ManageContext = createContext(null);
 
-export interface HeadCell {
-    disablePadding: boolean;
-    id: keyof I_Post;
-    label: string;
-    numeric: boolean;
-}
-
-const headCells: readonly HeadCell[] = [
-    {
-        id: 'id',
-        numeric: false,
-        disablePadding: true,
-        label: 'id',
-    },
-    {
-        id: 'title',
-        numeric: true,
-        disablePadding: false,
-        label: 'Title',
-    },
-    {
-        id: 'content',
-        numeric: true,
-        disablePadding: false,
-        label: 'Content',
-    },
-    {
-        id: 'image',
-        numeric: true,
-        disablePadding: false,
-        label: 'Image',
-    },
-];
+const paginationModel = { page: 0, pageSize: 5 };
 
 export default function Manage({ userId }: { userId: string }) {
-    const [posts, setPosts] = useState<I_Post[]>([]);
     const [postId, setPostId] = useState<string>('');
-    const [reload, setReload] = useState(false);
     const [message, setMessage] = useState<string>('');
-    const [open, setOpen] = useState<boolean>(false);
+    const [openModal, setOpenModal] = useState<boolean>(false);
     const [openToast, setOpenToast] = useState<boolean>(false);
     const [close, setClose] = useState<boolean>(true);
     const [selected, setSelected] = useState<string[]>([]);
 
-    useEffect(() => {
-        const fetchApi = async () => {
-            try {
-                const response = await postService.getPostsByUserId(userId);
-                setPosts(response.data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
+    const {
+        data: posts,
+        isLoading,
+        refetch,
+    } = useQuery<I_Post[]>({
+        queryKey: ['posts'],
+        queryFn: async () => {
+            const response = await postService.getPostsByUserId(userId);
+            return response.data;
+        },
+    });
 
-        fetchApi();
-    }, [userId, reload]);
-
-    const rows = posts.map((post) => ({
-        id: post.id,
-        title: post.title,
-        content: post.content,
-        image: post.image,
-    }));
+    const rows =
+        posts?.map((post) => ({
+            id: post.id,
+            title: post.title,
+            content: post.content,
+            image: post.image,
+        })) || [];
 
     const handleClickEdit = (postId: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
+        setOpenModal(true);
         setPostId(postId);
-        setOpen(true);
     };
 
     const handleClickDelete = (selected: string[]) => (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -88,42 +59,87 @@ export default function Manage({ userId }: { userId: string }) {
         setSelected(selected);
     };
 
+    const columns: GridColDef[] = [
+        { field: 'id', headerName: 'ID', flex: 1 },
+        { field: 'title', headerName: 'Title', flex: 1 },
+        { field: 'content', headerName: 'Content', flex: 1 },
+        {
+            field: 'image',
+            headerName: 'Image',
+            flex: 1,
+            renderCell: (params) => (
+                <div style={{ position: 'relative', height: 50, width: 'auto' }}>
+                    <Image src={params.value} alt="Post" fill style={{ objectFit: 'cover' }} />
+                </div>
+            ),
+        },
+        {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 150,
+            renderCell: (params) => (
+                <div className="flex gap-2 h-full">
+                    <button
+                        onClick={handleClickEdit(params.row.id)}
+                        className="flex items-center justify-center w-12 h-full hover:bg-gray-200 p-2 rounded-full"
+                    >
+                        <EditIcon />
+                    </button>
+                    <button
+                        onClick={handleClickDelete([params.row.id])}
+                        className="flex items-center justify-center w-12 h-full hover:bg-gray-200 p-2 rounded-full"
+                    >
+                        <DeleteIcon />
+                    </button>
+                </div>
+            ),
+        },
+    ];
+
     const handleConfirmDeletePost = async () => {
         try {
             const response = await postService.deletePosts(selected);
             setMessage(response.message);
             setOpenToast(true);
             setClose(true);
-            setReload(!reload);
-        } catch (error) {
-            console.error('Error deleting post:', error);
+            refetch();
+        } catch {
+            setMessage('Error deleting post');
+            setOpenToast(true);
         }
     };
 
     return (
-        <Box className="pt-20">
-            <EnhancedTable
-                rows={rows}
-                headCells={headCells}
-                handleClickEdit={handleClickEdit}
-                handleClickDelete={handleClickDelete}
-            />
+        <>
+            <Box className="pt-20 p-4">
+                <h1 className="text-2xl font-bold text-center">Manage Posts</h1>
+                <div className="flex justify-end mb-4">
+                    <button
+                        onClick={() => {
+                            setPostId('');
+                            setOpenModal(true);
+                        }}
+                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg shadow transition-all"
+                    >
+                        Create Post
+                    </button>
+                </div>
+                <div className="bg-white border border-gray-200 shadow rounded-xl p-4">
+                    <Table
+                        columns={columns}
+                        rows={rows}
+                        paginationModel={paginationModel}
+                        loading={isLoading}
+                    />
+                </div>
+            </Box>
             <ModalRegisterPost
-                setOpen={setOpen}
-                open={open}
+                setOpenModal={setOpenModal}
+                openModal={openModal}
                 postId={postId}
                 setMessage={setMessage}
                 setOpenToast={setOpenToast}
                 type={'edit'}
-                setReload={setReload}
-                reload={reload}
-            />
-            <Toast
-                openToast={openToast}
-                setOpenToast={setOpenToast}
-                message={message}
-                horizontal="right"
-                vertical="bottom"
             />
             <Confirm
                 title="Delete"
@@ -134,6 +150,13 @@ export default function Manage({ userId }: { userId: string }) {
                 open={!close}
                 onConfirm={handleConfirmDeletePost}
             />
-        </Box>
+            <Toast
+                openToast={openToast}
+                setOpenToast={setOpenToast}
+                message={message}
+                horizontal="right"
+                vertical="bottom"
+            />
+        </>
     );
 }

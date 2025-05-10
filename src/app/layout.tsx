@@ -5,6 +5,7 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import './globals.css';
 import QueryProvider from '@/providers/queryProvider';
 import ReduxProvider from '@/providers/reduxProvider';
+import AuthClientProvider from '@/components/ui/AuthClientProvider';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -31,7 +32,9 @@ export default function RootLayout({
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
                 <QueryProvider>
                     <ReduxProvider>
-                        <AppRouterCacheProvider>{children}</AppRouterCacheProvider>
+                        <AuthClientProvider>
+                            <AppRouterCacheProvider>{children}</AppRouterCacheProvider>
+                        </AuthClientProvider>
                     </ReduxProvider>
                 </QueryProvider>
             </body>

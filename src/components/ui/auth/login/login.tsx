@@ -51,6 +51,7 @@ export default function Login() {
         } catch {
             setMessage('Login error!');
             setOpenToast(true);
+            setIsLoading(false);
         }
     };
 

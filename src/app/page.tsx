@@ -3,20 +3,19 @@
 import { useState } from 'react';
 import { Box } from '@mui/material';
 
-import { postService } from '@/services/post.services';
-import Toast from '@/components/ui/toast';
-import { I_Post } from '@/types/post';
-import Header from '@/components/Header';
-import Post from '@/components/ui/post/Post';
-import Register_post from '@/components/ui/register_post/Register_post';
-import Sidebar from '@/components/Sidbar';
-import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import Header from '@/components/Header';
+import Toast from '@/components/ui/toast';
+import { useSelector } from 'react-redux';
+import Post from '@/components/ui/post/Post';
+import { I_Post } from '@/types/post.interface';
 import { useQuery } from '@tanstack/react-query';
 import LoadingPage from '@/components/ui/loadingPage';
+import { postService } from '@/services/post.services';
+import Register_post from '@/components/ui/register_post/Register_post';
+import Sidebar from '@/components/Sidebar';
 
 export default function Home() {
-    const [reloading, setReLoading] = useState(true);
     const [message, setMessage] = useState('');
     const [openToast, setOpenToast] = useState(false);
     const userId = useSelector((state: RootState) => state.sidebar.userId);
@@ -48,7 +47,7 @@ export default function Home() {
                         <Sidebar setMessage={setMessage} setOpenToast={setOpenToast} />
                     </div>
                     <div className="col-span-8 flex flex-col gap-4">
-                        <Register_post setReLoading={setReLoading} reloading={reloading} />
+                        <Register_post />
                         {data?.map((post: I_Post) => (
                             <Post
                                 key={post.id}

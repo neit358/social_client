@@ -8,14 +8,8 @@ import ModalRegisterPost from './modal_register_post/Modal_register_post';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 
-export default function Register_post({
-    setReLoading,
-    reloading,
-}: {
-    setReLoading?: React.Dispatch<React.SetStateAction<boolean>>;
-    reloading?: boolean;
-}) {
-    const [open, setOpen] = useState(false);
+export default function Register_post() {
+    const [openModal, setOpenModal] = useState(false);
     const [openToast, setOpenToast] = useState(false);
     const [message, setMessage] = useState<string>('');
 
@@ -23,7 +17,7 @@ export default function Register_post({
 
     const handleOpenModalRegisterPost = () => {
         if (user.id) {
-            setOpen(true);
+            setOpenModal(true);
         } else {
             setMessage('Please login to create a post!');
             setOpenToast(true);
@@ -52,10 +46,8 @@ export default function Register_post({
             <ModalRegisterPost
                 setOpenToast={setOpenToast}
                 setMessage={setMessage}
-                setOpen={setOpen}
-                open={open}
-                setReLoading={setReLoading}
-                reloading={reloading}
+                setOpenModal={setOpenModal}
+                openModal={openModal}
             />
             <Toast
                 vertical={'bottom'}

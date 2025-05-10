@@ -1,5 +1,5 @@
+import { formDataChangePasswordSchema } from '@/components/ui/profile/modal_change_password/Model_change_password';
 import axiosInstance from '@/lib/axiosInstance';
-import { formDataChangePasswordSchema } from '@/types/formData';
 
 const root = 'user';
 

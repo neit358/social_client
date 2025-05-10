@@ -1,35 +1,20 @@
-import { postService } from '@/services/post.services';
-import { I_User } from '@/types/user';
 import { Card, CardContent, Modal } from '@mui/material';
+import CircularIndeterminate from '../../CircularIndeterminate';
+
+import { I_User } from '@/types/user.interface';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
 
 export default function ListLiked({
-    postId,
     setShowListLiked,
     showListLiked,
+    isLoading,
+    users,
 }: {
-    postId: string;
     setShowListLiked: React.Dispatch<React.SetStateAction<boolean>>;
     showListLiked: boolean;
+    isLoading: boolean;
+    users: I_User[];
 }) {
-    const [users, setUsers] = useState<I_User[]>([]);
-
-    useEffect(() => {
-        const fetchApi = async () => {
-            if (!postId) return;
-            try {
-                const response = await postService.getUserLikedByPostId(postId);
-                if (response.statusCode === 200) {
-                    setUsers(response.data.likes.map((like: { user: I_User }) => like.user));
-                }
-            } catch (error) {
-                console.error('Error fetching likes:', error);
-            }
-        };
-        fetchApi();
-    }, [postId]);
-
     return (
         <Modal
             open={showListLiked}
@@ -48,29 +33,37 @@ export default function ListLiked({
                     overflowY: 'auto',
                     outline: 'none',
                 }}
+                onClick={(event: React.MouseEvent<HTMLElement>) => {
+                    event.stopPropagation();
+                }}
             >
                 <CardContent>
                     <div className="p-4">
                         <h2 className="text-xl font-semibold text-center border-b pb-2 mb-4">
                             List of Likes
                         </h2>
-                        <div className="space-y-3">
-                            {users.map((user) => (
-                                <div
-                                    key={user.id}
-                                    className="flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 transition"
-                                >
-                                    <Image
-                                        src={user.avatar}
-                                        alt={user.name}
-                                        width={40}
-                                        height={40}
-                                        className="w-10 h-10 rounded-full object-cover"
-                                    />
-                                    <span className="font-medium">{user.name}</span>
-                                </div>
-                            ))}
-                        </div>
+
+                        {isLoading ? (
+                            <CircularIndeterminate />
+                        ) : (
+                            <div className="space-y-3">
+                                {users?.map((user: I_User) => (
+                                    <div
+                                        key={user.id}
+                                        className="flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 transition"
+                                    >
+                                        <Image
+                                            src={user.avatar || '/next.svg'}
+                                            alt={user.name}
+                                            width={40}
+                                            height={40}
+                                            className="w-10 h-10 rounded-full object-cover border-1 border-gray-300"
+                                        />
+                                        <span className="font-medium">{user.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </CardContent>
             </Card>
