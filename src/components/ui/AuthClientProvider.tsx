@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useDispatch } from 'react-redux';
 import { clearUser, setUser } from '@/store/authSlice';
 import { authService } from '@/services/auth.services';
+import { useEffect } from 'react';
 
 export default function AuthClientProvider({ children }: { children: React.ReactNode }) {
     const dispatch = useDispatch();
@@ -16,11 +17,13 @@ export default function AuthClientProvider({ children }: { children: React.React
         },
     });
 
-    if (data) {
-        dispatch(setUser(data));
-    } else if (error) {
-        dispatch(clearUser());
-    }
+    useEffect(() => {
+        if (data) {
+            dispatch(setUser(data));
+        } else if (error) {
+            dispatch(clearUser());
+        }
+    }, [data, error, dispatch]);
 
     return <>{children}</>;
 }
