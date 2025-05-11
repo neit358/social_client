@@ -14,8 +14,8 @@ import Header from '@/components/Header';
 import Input from '@/components/ui/input';
 import Toast from '@/components/ui/toast';
 import { setUser } from '@/store/authSlice';
-import { userService } from '@/services/user.services';
 import ModalChangePassword from './modal_change_password/Model_change_password';
+import { useUpdate } from '@/hooks/user.hook';
 
 interface FormDataUser {
     name: string;
@@ -33,10 +33,11 @@ export default function Profile() {
     const [openChangePassword, setOpenChangePassword] = useState(false);
     const user = useSelector((state: RootState) => state.auth);
     const inputFileRef = useRef<HTMLInputElement | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
     const [preview, setPreview] = useState(user.avatar);
     const [file, setFile] = useState<File | null>(null);
     const refButton = useRef<HTMLButtonElement | null>(null);
+
+    const { mutate, isPending } = useUpdate();
 
     const dispatch = useDispatch();
 
@@ -58,20 +59,25 @@ export default function Profile() {
     };
 
     const onSubmit = async (data: FormDataUser): Promise<void> => {
-        try {
-            setIsLoading(true);
-            const formData = new FormData();
-            if (file) formData.append('image', file);
-            const response = await userService.updateUser(user.id, { name: data.name }, formData);
-            setIsEdit(!isEdit);
-            setMessage(response.message);
-            setOpenToast(true);
-            setIsLoading(false);
-            dispatch(setUser(response.data));
-        } catch {
-            setMessage('Error updating user');
-            setOpenToast(true);
-        }
+        mutate(
+            {
+                id: user.id,
+                name: data.name,
+                file: file || undefined,
+            },
+            {
+                onSuccess: (response) => {
+                    setMessage(response.message);
+                    setOpenToast(true);
+                    dispatch(setUser(response.data));
+                    setIsEdit(false);
+                },
+                onError: () => {
+                    setMessage('Error updating user');
+                    setOpenToast(true);
+                },
+            },
+        );
     };
 
     function handleChangeImage(event: React.ChangeEvent<HTMLInputElement>): void {
@@ -97,7 +103,7 @@ export default function Profile() {
                                 onClick={handleClickChangeAvatar}
                             >
                                 <Image
-                                    src={preview}
+                                    src={preview || user?.avatar || '/next.svg'}
                                     alt="User avatar"
                                     width={100}
                                     height={100}
@@ -129,7 +135,7 @@ export default function Profile() {
                                 ref={refButton}
                                 type={isEdit ? 'submit' : 'button'}
                                 variant={isEdit ? 'contained' : 'outlined'}
-                                loading={isLoading}
+                                loading={isPending}
                                 onClick={() => {
                                     if (!isEdit) {
                                         setTimeout(() => {

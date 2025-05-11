@@ -5,7 +5,7 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import './globals.css';
 import QueryProvider from '@/providers/queryProvider';
 import ReduxProvider from '@/providers/reduxProvider';
-import AuthClientProvider from '@/components/AuthClientProvider';
+import AuthClientProvider from '@/providers/AuthClientProvider';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',

@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { authService } from '@/services/auth.services';
 import { I_Auth_Verify } from '@/types/auth.interface';
@@ -39,6 +39,16 @@ export const useLogin = () => {
         mutationFn: async ({ email, password }: { email: string; password: string }) => {
             const response = await authService.login(email, password);
             return response;
+        },
+    });
+};
+
+export const useCheckAuth = () => {
+    return useQuery({
+        queryKey: ['checkAuth'],
+        queryFn: async () => {
+            const res = await authService.checkAuth();
+            return res.data;
         },
     });
 };

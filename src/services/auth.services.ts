@@ -1,4 +1,4 @@
-import axiosInstance, { handleGetAccessToken } from '@/lib/axiosInstance';
+import axiosInstance from '@/lib/axiosInstance';
 import { I_Auth_Verify } from '@/types/auth.interface';
 const root = 'auth';
 
@@ -17,12 +17,7 @@ export const authService = {
 
     logout: async () => {
         try {
-            const token = handleGetAccessToken();
-            const response = await axiosInstance.get(`/${root}/logout`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const response = await axiosInstance.get(`/${root}/logout`);
             return response.data;
         } catch (error) {
             return Promise.reject(error);
