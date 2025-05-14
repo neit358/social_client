@@ -1,24 +1,23 @@
 'use client';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-import { Box, Button, Card, CardContent, Modal } from '@mui/material';
+import { Box, Button, Card, CardContent, Modal, Typography } from '@mui/material';
 import { MuiOtpInput } from 'mui-one-time-password-input';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import Input from '../../input';
-import { setUser } from '@/store/authSlice';
 import Toast from '../../toast';
 import { I_CreateUser } from '@/types/user.interface';
 import { useRegister, useVerify } from '@/hooks/auth.hook';
 import LoadingPage from '../../loadingPage';
 
 const schema = Yup.object().shape({
-    email: Yup.string().email('Email is invalid').required('Email is required'),
-    name: Yup.string().required('Name is required'),
+    email: Yup.string().trim().email('Email is invalid').required('Email is required'),
+    name: Yup.string().trim().required('Name is required'),
     password: Yup.string()
+        .trim()
         .required('Password is required')
         .min(8, 'Password must be at least 8 characters long')
         .matches(
@@ -32,20 +31,8 @@ export default function Register() {
     const [otp, setOtp] = useState<string>('');
     const [message, setMessage] = useState<string>('');
     const [openToast, setOpenToast] = useState<boolean>(false);
-    const {
-        mutate: verify,
-        data: responseVerify,
-        isSuccess: successVerify,
-        isError: errorVerify,
-        isPending: pendingVerify,
-    } = useVerify();
-    const {
-        mutate: registerUser,
-        data: responseRegisterUser,
-        isSuccess: successRegisterUser,
-        isError: errorRegisterUser,
-        isPending: pendingRegisterUser,
-    } = useRegister();
+    const { mutate: verify, isError: errorVerify, isPending: pendingVerify } = useVerify();
+    const { mutate: registerUser, isPending: pendingRegisterUser } = useRegister();
 
     const {
         register,
@@ -54,45 +41,43 @@ export default function Register() {
     } = useForm<I_CreateUser>({
         resolver: yupResolver(schema),
     });
-    const dispatch = useDispatch();
     const router = useRouter();
 
     const onSubmit = async (data: I_CreateUser): Promise<void> => {
         const { email } = data;
-        registerUser({ email, ttl: 60 });
+        registerUser(
+            { email, ttl: 60 },
+            {
+                onSuccess: (response) => {
+                    setMessage(response.message);
+                    setOpenToast(true);
+                    setOpen(true);
+                },
+                onError: () => {
+                    setMessage('Register failed!');
+                    setOpenToast(true);
+                },
+            },
+        );
     };
 
     const onVerify = async (data: I_CreateUser): Promise<void> => {
         const { email } = data;
-        verify({ email, code: otp, createUserDto: data });
+        verify(
+            { email, code: otp, createUserDto: data },
+            {
+                onSuccess: (response) => {
+                    setMessage(response.message);
+                    setOpenToast(true);
+                    router.push('/login');
+                },
+                onError: () => {
+                    setMessage('Verify failed!');
+                    setOpenToast(true);
+                },
+            },
+        );
     };
-
-    useEffect(() => {
-        if (successVerify && responseVerify) {
-            dispatch(setUser({ ...responseVerify }));
-            setMessage('Register successfully!');
-            setOpenToast(true);
-            router.push('/login');
-        }
-
-        if (errorVerify) {
-            setMessage('Register failed!');
-            setOpenToast(true);
-        }
-    }, [successVerify, responseVerify, dispatch, router, errorVerify]);
-
-    useEffect(() => {
-        if (successRegisterUser && responseRegisterUser) {
-            setMessage('OTP sent to your email!');
-            setOpenToast(true);
-            setOpen(true);
-        }
-
-        if (errorRegisterUser) {
-            setMessage('Register failed!');
-            setOpenToast(true);
-        }
-    }, [responseRegisterUser, successRegisterUser, errorRegisterUser]);
 
     return (
         <Box className="flex flex-col items-center justify-center min-h-screen bg-gray-100 gap-y-3">
@@ -152,7 +137,22 @@ export default function Register() {
                             onChange={(value: string) => {
                                 setOtp(value);
                             }}
+                            validateChar={(value: string) => {
+                                return /^[0-9]$/.test(value);
+                            }}
+                            TextFieldsProps={{
+                                error: !!errorVerify,
+                            }}
                         />
+                        {errorVerify && (
+                            <Typography
+                                color="error"
+                                variant="body2"
+                                sx={{ mt: 1, textAlign: 'center' }}
+                            >
+                                {message}
+                            </Typography>
+                        )}
                         <Button
                             type="submit"
                             variant="contained"

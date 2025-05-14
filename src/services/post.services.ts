@@ -41,7 +41,7 @@ export const postService = {
 
     getPostsSearchElastic: async (search: string) => {
         try {
-            const response = await axiosInstance.get(`/${root}/search/elastic?title=${search}`);
+            const response = await axiosInstance.get(`/${root}/elastic/search?title=${search}`);
             return response.data;
         } catch (error) {
             return Promise.reject(error);

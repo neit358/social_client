@@ -8,6 +8,7 @@ export const useLike = (postId: string, userId: string) => {
             const response = await likeService.getLike(postId, userId);
             return response.data;
         },
+        enabled: !!userId,
     });
 };
 

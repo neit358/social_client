@@ -2,11 +2,17 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { authService } from '@/services/auth.services';
 import { I_Auth_Verify } from '@/types/auth.interface';
+import { I_BaseResponseSuccess } from '@/types/response.interface';
+import { I_User } from '@/types/user.interface';
 
 export const useVerify = () => {
     return useMutation({
         mutationKey: ['verify'],
-        mutationFn: async ({ email, code, createUserDto }: I_Auth_Verify) => {
+        mutationFn: async ({
+            email,
+            code,
+            createUserDto,
+        }: I_Auth_Verify): Promise<I_BaseResponseSuccess<I_User>> => {
             const response = await authService.verify({ email, code, createUserDto });
             return response;
         },
@@ -43,12 +49,13 @@ export const useLogin = () => {
     });
 };
 
-export const useCheckAuth = () => {
+export const useCheckAuth = (userId: string) => {
     return useQuery({
         queryKey: ['checkAuth'],
         queryFn: async () => {
             const res = await authService.checkAuth();
             return res.data;
         },
+        enabled: !!userId,
     });
 };

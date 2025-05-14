@@ -3,7 +3,6 @@
 import { Box } from '@mui/material';
 import React, { createContext, useState } from 'react';
 
-import { postService } from '@/services/post.services';
 import { I_Post } from '@/types/post.interface';
 import ModalRegisterPost from '../register_post/modal_register_post/Modal_register_post';
 import Toast from '../toast';
@@ -13,7 +12,8 @@ import Table from '../table';
 import Image from 'next/image';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { usePosts } from '@/hooks/post.hook';
+import { usePosts, useRemovePost } from '@/hooks/post.hook';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const ManageContext = createContext(null);
 
@@ -25,9 +25,13 @@ export default function Manage({ userId }: { userId: string }) {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [openToast, setOpenToast] = useState<boolean>(false);
     const [close, setClose] = useState<boolean>(true);
-    const [selected, setSelected] = useState<string[]>([]);
+    const [selected, setSelected] = useState<string>('');
 
-    const { data: posts, isLoading, refetch } = usePosts(userId);
+    const { data: posts, isLoading } = usePosts(userId);
+
+    const queryClient = useQueryClient();
+
+    const { mutate: removePost } = useRemovePost();
 
     const rows =
         posts?.map((post: I_Post) => ({
@@ -43,10 +47,10 @@ export default function Manage({ userId }: { userId: string }) {
         setPostId(postId);
     };
 
-    const handleClickDelete = (selected: string[]) => (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleClickDelete = (id: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         setClose(false);
-        setSelected(selected);
+        setSelected(id);
     };
 
     const columns: GridColDef[] = [
@@ -58,7 +62,7 @@ export default function Manage({ userId }: { userId: string }) {
             headerName: 'Image',
             flex: 1,
             renderCell: (params) => (
-                <div style={{ position: 'relative', height: 50, width: 'auto' }}>
+                <div style={{ position: 'relative', height: 50, width: 200 }}>
                     <Image src={params.value} alt="Post" fill style={{ objectFit: 'cover' }} />
                 </div>
             ),
@@ -76,7 +80,7 @@ export default function Manage({ userId }: { userId: string }) {
                         <EditIcon />
                     </button>
                     <button
-                        onClick={handleClickDelete([params.row.id])}
+                        onClick={handleClickDelete(params.row.id)}
                         className="flex items-center justify-center w-12 h-full hover:bg-gray-200 p-2 rounded-full"
                     >
                         <DeleteIcon />
@@ -87,16 +91,18 @@ export default function Manage({ userId }: { userId: string }) {
     ];
 
     const handleConfirmDeletePost = async () => {
-        try {
-            const response = await postService.deletePosts(selected);
-            setMessage(response.message);
-            setOpenToast(true);
-            setClose(true);
-            refetch();
-        } catch {
-            setMessage('Error deleting post');
-            setOpenToast(true);
-        }
+        removePost(selected, {
+            onSuccess: (response) => {
+                setClose(true);
+                setMessage(response.message);
+                setOpenToast(true);
+                queryClient.invalidateQueries({ queryKey: ['postsByUserId', userId] });
+            },
+            onError: (error) => {
+                setMessage(error.message);
+                setOpenToast(true);
+            },
+        });
     };
 
     return (

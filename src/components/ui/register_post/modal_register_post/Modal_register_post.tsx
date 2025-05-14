@@ -9,6 +9,8 @@ import AddIcon from '@mui/icons-material/Add';
 
 import { RootState } from '@/store';
 import { postService } from '@/services/post.services';
+import { useCreatePost, useUpdatePost } from '@/hooks/post.hook';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface FormData {
     title: string;
@@ -39,6 +41,14 @@ export default function ModalRegisterPost({
     const user = useSelector((state: RootState) => state.auth);
     const refInput = useRef<HTMLInputElement>(null);
 
+    const { mutate: createPost } = useCreatePost();
+    const { mutate: updatePost } = useUpdatePost();
+
+    const userId = useSelector((state: RootState) => state.sidebar.userId);
+    const search = useSelector((state: RootState) => state.header.search);
+
+    const queryClient = useQueryClient();
+
     const handleAddImage = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
@@ -58,19 +68,54 @@ export default function ModalRegisterPost({
     });
 
     const onsubmit = async (data: FormData): Promise<void> => {
-        try {
-            const response = postId
-                ? await postService.updatePost(postId, data.title, data.content, file as File)
-                : await postService.createPost(data.title, data.content, user.id, file as File);
-            if (!postId) setPreview(null);
-            setFile(null);
-            setOpenModal(false);
-            setOpenToast(true);
-            setMessage(response.message);
-        } catch {
-            setOpenToast(true);
-            setMessage('Error post api!');
-            setOpenModal(false);
+        if (postId) {
+            updatePost(
+                {
+                    postId,
+                    title: data.title,
+                    content: data.content,
+                    image: file as File,
+                },
+                {
+                    onSuccess: () => {
+                        setPreview(null);
+                        setFile(null);
+                        setOpenModal(false);
+                        setOpenToast(true);
+                        setMessage('Update post success!');
+                        queryClient.invalidateQueries({ queryKey: ['postsByUserId', user.id] });
+                    },
+                    onError: () => {
+                        setOpenToast(true);
+                        setMessage('Error post api!');
+                        setOpenModal(false);
+                    },
+                },
+            );
+        } else {
+            createPost(
+                {
+                    title: data.title,
+                    content: data.content,
+                    userId: user.id,
+                    image: file as File,
+                },
+                {
+                    onSuccess: () => {
+                        setPreview(null);
+                        setFile(null);
+                        setOpenModal(false);
+                        setOpenToast(true);
+                        setMessage('Create post success!');
+                        queryClient.invalidateQueries({ queryKey: ['posts', userId, search] });
+                    },
+                    onError: () => {
+                        setOpenToast(true);
+                        setMessage('Error post api!');
+                        setOpenModal(false);
+                    },
+                },
+            );
         }
     };
 

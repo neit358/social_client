@@ -21,7 +21,7 @@ export default function Home() {
     const userId = useSelector((state: RootState) => state.sidebar.userId);
     const search = useSelector((state: RootState) => state.header.search);
     const { data, isLoading, error } = useQuery({
-        queryKey: ['posts', userId, search],
+        queryKey: ['postsList'],
         queryFn: async () => {
             const response =
                 userId && userId !== ''
