@@ -49,12 +49,47 @@ export default function ModalRegisterPost({
 
     const queryClient = useQueryClient();
 
-    const handleAddImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleAddImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
             const imageUrl = URL.createObjectURL(file);
             setPreview(imageUrl);
             setFile(file);
+
+            // ===========================================================================
+
+            const data = new FormData();
+
+            data.append('files', file);
+            await postService.uploadNotChunkFile(data);
+
+            // const chunkSize = 10 * 1024 * 1024, // 10MB
+            //     chunks = [];
+
+            // let startPos = 0;
+
+            // while (startPos < file.size) {
+            //     chunks.push(file.slice(startPos, startPos + chunkSize));
+            //     startPos += chunkSize;
+            // }
+
+            // if (chunks.length === 0) return;
+
+            // const nameRandom = Math.random().toString().slice(2, 6);
+
+            // const chunkPromises = chunks.map((chunk, index) => {
+            //     const data = new FormData();
+            //     data.set(
+            //         'name',
+            //         `${nameRandom}-${file.name.replace(/\s+/g, '').toLocaleLowerCase()}-${index}`,
+            //     );
+            //     data.append('files', chunk);
+            //     return postService.uploadLargeFile(data);
+            // });
+            // await Promise.all(chunkPromises);
+            // await postService.mergeLargeFile(
+            //     `${nameRandom}-${file.name.replace(/\s+/g, '').toLocaleLowerCase()}`,
+            // );
         }
     };
 
@@ -210,10 +245,10 @@ export default function ModalRegisterPost({
                             )}
                             <input
                                 type="file"
+                                multiple
                                 onChange={handleAddImage}
                                 hidden
                                 ref={refInput}
-                                accept="image/jpeg, image/png, image/webp"
                             />
                         </Box>
 

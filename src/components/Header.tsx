@@ -17,7 +17,9 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
+import SendIcon from '@mui/icons-material/Send';
 import { useDispatch, useSelector } from 'react-redux';
+import { io } from 'socket.io-client';
 
 import Toast from './ui/toast';
 import { RootState } from '@/store';
@@ -87,6 +89,10 @@ export default function Header() {
     const router = useRouter();
     const dispatch = useDispatch();
 
+    const socket = io(process.env.SOCKET_URL ?? 'http://localhost:3002', {
+        transports: ['websocket'],
+    });
+
     const user = useSelector((state: RootState) => state.auth);
 
     const {
@@ -118,6 +124,15 @@ export default function Header() {
             setOpenToast(true);
         }
     }, [successLogout, responseLogout, dispatch, router, errorLogout]);
+
+    const handleClickSend = () => {
+        socket.emit('chats', {
+            message: 'Hello from client',
+        });
+        socket.on('response', (data: string) => {
+            console.log(data);
+        });
+    };
 
     return (
         <AppBar position="fixed">
@@ -206,6 +221,26 @@ export default function Header() {
                                 </MenuItem>
                             )}
                         </Menu>
+                    </Box>
+                    <Box
+                        sx={{
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '0 10px',
+                            cursor: 'pointer',
+                            '&:hover': {
+                                backgroundColor: alpha('#fff', 0.1),
+                            },
+                            borderRadius: '4px',
+                            marginLeft: '10px',
+                            color: 'white',
+                        }}
+                        component="div"
+                        onClick={handleClickSend}
+                    >
+                        <SendIcon />
                     </Box>
                     <Toast
                         openToast={openToast}

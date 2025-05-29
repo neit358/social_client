@@ -87,6 +87,7 @@ export default function Profile() {
             setFile(file);
         }
     }
+
     return (
         <Box>
             <Header />

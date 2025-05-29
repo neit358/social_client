@@ -112,4 +112,39 @@ export const postService = {
             return Promise.reject(error);
         }
     },
+
+    uploadLargeFile: async (data: FormData) => {
+        try {
+            const response = await axiosInstance.post(`/${root}/upload/file-large`, data, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return response.data;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    },
+
+    mergeLargeFile: async (name: string) => {
+        try {
+            const response = await axiosInstance.get(`/${root}/upload/merge-file?name=${name}`);
+            return response.data;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    },
+
+    uploadNotChunkFile: async (data: FormData) => {
+        try {
+            const response = await axiosInstance.post(`/${root}/upload/not-chunk`, data, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return response.data;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    },
 };
